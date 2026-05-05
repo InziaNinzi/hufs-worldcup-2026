@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # World Cup Head Soccer (Pygame)
 
 간단한 1:1 헤드사커 스타일 축구 게임입니다.  
@@ -49,3 +50,7 @@ worldcup_game/
 - 기능별 브랜치 사용: 기능/수정 단위로 브랜치를 분리해 작업합니다.
   - 예: `feature/kick-effect`, `fix/collision-bug`
 - PEP 8 스타일 준수: 네이밍, 들여쓰기, 라인 길이 등 파이썬 스타일 가이드를 지킵니다.
+=======
+# hufs-worldcup-2026
+2026 북중미 월드컵 1대1 축구 게임 (Python/Pygame)
+>>>>>>> 9d12236c48a9ab180250dae5b7ddf2aa6f070b98
