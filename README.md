@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # World Cup Head Soccer (Pygame)
 
 간단한 1:1 헤드사커 스타일 축구 게임입니다.  
@@ -47,10 +46,18 @@ worldcup_game/
 
 ## 팀 컨벤션
 
-- 기능별 브랜치 사용: 기능/수정 단위로 브랜치를 분리해 작업합니다.
+- **브랜치 전략**: 기능/수정 단위로 브랜치를 분리합니다.
   - 예: `feature/kick-effect`, `fix/collision-bug`
-- PEP 8 스타일 준수: 네이밍, 들여쓰기, 라인 길이 등 파이썬 스타일 가이드를 지킵니다.
-=======
-# hufs-worldcup-2026
-2026 북중미 월드컵 1대1 축구 게임 (Python/Pygame)
->>>>>>> 9d12236c48a9ab180250dae5b7ddf2aa6f070b98
+- **PEP 8 네이밍 규칙 준수**: 
+  - **Class**: `PascalCase` (예: `Player`, `Ball`)
+  - **Variable / Function / Method**: `snake_case` (예: `is_jumping`, `move_player()`)
+  - **Constant**: `UPPER_SNAKE_CASE` (예: `GROUND_Y`, `BALL_GRAVITY`)
+- **인코딩**: 모든 소스 코드 및 주석은 `UTF-8` 형식을 사용합니다.
+
+- **커밋 메시지 규칙 (Conventional Commits)**:
+  - `feat`: 새로운 기능 추가
+  - `fix`: 버그 수정
+  - `docs`: 문서 수정 (README, 주석 등)
+  - `refactor`: 코드 리팩토링 (기능 변화 없는 구조 변경)[cite: 1]
+  - `chore`: 빌드 업무, 패키지 매니저 설정, 로그 삭제 등
+  - **양식**: `태그: 요약 설명` (예: `feat: add player jump logic`)[cite: 1]
