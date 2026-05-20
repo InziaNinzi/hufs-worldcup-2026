@@ -39,12 +39,18 @@ TEAMS = [
 # Gameplay constants
 PLAYER_SIZE = (60, 90)
 PLAYER_SPEED = 7
+PLAYER_DASH_SPEED = 18
+PLAYER_DASH_DURATION = 10
+PLAYER_DASH_COOLDOWN = 90
 PLAYER_JUMP_VELOCITY = -15
 PLAYER_GRAVITY = 0.8
 BALL_RADIUS = 15
 BALL_GRAVITY = 0.5
 BALL_BOUNCE_Y = -0.7
 BALL_BOUNCE_X = -0.8
+BALL_AIR_FRICTION = 0.99
+BALL_GROUND_FRICTION = 0.88
+BALL_MAX_SPEED = 30
 GROUND_Y = 550
 GOAL_WIDTH = 50
 GOAL_HEIGHT = 150
@@ -58,5 +64,5 @@ PLAYER1_IMAGE_PATH = os.path.join(ASSETS_DIR, "player1.png")
 PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
 
 # Key settings
-P1_CONTROLS = [pygame.K_a, pygame.K_d, pygame.K_w]
-P2_CONTROLS = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP]
+P1_CONTROLS = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_LSHIFT]
+P2_CONTROLS = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_RSHIFT]

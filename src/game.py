@@ -51,8 +51,9 @@ def run_match(screen, clock, p1_team, p2_team):
 
         for player in (p1, p2):
             if player.rect.collidepoint(ball.pos[0], ball.pos[1]):
-                ball.vel[0] = (ball.pos[0] - player.rect.centerx) * 0.5
-                ball.vel[1] = -10
+                rel_x = ball.pos[0] - player.rect.centerx
+                ball.vel[0] = player.vel_x * 1.5 + rel_x * 0.2
+                ball.vel[1] = player.vel_y * 0.3 - 10
 
         if goal_left.collidepoint(ball.pos[0], ball.pos[1]):
             score2 += 1
