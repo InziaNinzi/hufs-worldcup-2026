@@ -50,14 +50,19 @@ def run_match(screen, clock, p1_team, p2_team):
         ball.update()
 
         for player in (p1, p2):
-            if player.rect.collidepoint(ball.pos[0], ball.pos[1]):
-                rel_x = ball.pos[0] - player.rect.centerx
-                ball.vel[0] = player.vel_x * 1.5 + rel_x * 0.2
-                ball.vel[1] = player.vel_y * 0.3 - 10
-                if rel_x >= 0:
-                    ball.pos[0] = player.rect.right + ball.radius
-                else:
-                    ball.pos[0] = player.rect.left - ball.radius
+            dx = ball.pos[0] - player.circle_x
+            dy = ball.pos[1] - player.circle_y
+            dist = (dx ** 2 + dy ** 2) ** 0.5
+            if 0 < dist < player.radius + ball.radius:
+                nx = dx / dist
+                ny = dy / dist
+                pv_n = player.vel_x * nx + player.vel_y * ny
+                kick = pv_n * 1.5 + 8
+                ball.vel[0] = nx * kick
+                ball.vel[1] = ny * kick - 5
+                overlap = player.radius + ball.radius - dist
+                ball.pos[0] += nx * (overlap + 1)
+                ball.pos[1] += ny * (overlap + 1)
 
         if goal_left.collidepoint(ball.pos[0], ball.pos[1]):
             score2 += 1

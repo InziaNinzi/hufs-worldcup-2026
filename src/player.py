@@ -9,6 +9,7 @@ from src.constants import (
     PLAYER_DASH_SPEED,
     PLAYER_GRAVITY,
     PLAYER_JUMP_VELOCITY,
+    PLAYER_RADIUS,
     PLAYER_SIZE,
     PLAYER_SPEED,
     WIDTH,
@@ -25,6 +26,8 @@ class Player:
         self.speed = PLAYER_SPEED
         self.gravity = PLAYER_GRAVITY
         self.vel_x = 0
+        self.radius = PLAYER_RADIUS
+        self.color = color
         self.last_dir = 1
         self.is_dashing = False
         self.dash_timer = 0
@@ -97,5 +100,16 @@ class Player:
 
         self.vel_x = self.rect.x - prev_x
 
+    @property
+    def circle_x(self):
+        return self.rect.centerx
+
+    @property
+    def circle_y(self):
+        return self.rect.top + self.radius
+
     def draw(self, surface):
-        surface.blit(self.image, self.rect)
+        if self.image:
+            surface.blit(self.image, self.rect)
+        else:
+            pygame.draw.circle(surface, self.color, (self.circle_x, self.circle_y), self.radius)
