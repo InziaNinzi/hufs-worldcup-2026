@@ -106,7 +106,7 @@ class Player:
 
     @property
     def circle_y(self):
-        return self.rect.top + self.radius
+        return self.rect.centery
 
     def draw(self, surface):
         if self.image:
