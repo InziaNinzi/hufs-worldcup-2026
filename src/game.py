@@ -4,16 +4,18 @@ from src.ball import Ball
 from src.constants import (
     FPS,
     GOAL_HEIGHT,
+    GOAL_POST_THICKNESS,
     GOAL_WIDTH,
     GOAL_Y,
-    GROUND_Y,
     GREEN,
+    GROUND_Y,
     HEIGHT,
     P1_CONTROLS,
     P2_CONTROLS,
     PLAYER1_IMAGE_PATH,
     PLAYER2_IMAGE_PATH,
     SCORE_TEXT_POS,
+    SKY_BLUE,
     WHITE,
     WIDTH,
 )
@@ -37,7 +39,8 @@ def run_match(screen, clock, p1_team, p2_team):
     running = True
     while running:
         clock.tick(FPS)
-        screen.fill(GREEN)
+        screen.fill(SKY_BLUE)
+        pygame.draw.rect(screen, GREEN, (0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -48,6 +51,24 @@ def run_match(screen, clock, p1_team, p2_team):
         p1.move()
         p2.move()
         ball.update()
+
+        br = ball.radius
+        # Left goal crossbar
+        if ball.pos[0] - br < GOAL_WIDTH and abs(ball.pos[1] - GOAL_Y) < br:
+            ball.vel[1] *= -0.7
+            ball.pos[1] = GOAL_Y - br if ball.vel[1] < 0 else GOAL_Y + br
+        # Left goal post (right vertical bar, above opening)
+        if abs(ball.pos[0] - GOAL_WIDTH) < br and ball.pos[1] < GOAL_Y:
+            ball.vel[0] = abs(ball.vel[0]) * 0.7
+            ball.pos[0] = GOAL_WIDTH + br
+        # Right goal crossbar
+        if ball.pos[0] + br > WIDTH - GOAL_WIDTH and abs(ball.pos[1] - GOAL_Y) < br:
+            ball.vel[1] *= -0.7
+            ball.pos[1] = GOAL_Y - br if ball.vel[1] < 0 else GOAL_Y + br
+        # Right goal post (left vertical bar, above opening)
+        if abs(ball.pos[0] - (WIDTH - GOAL_WIDTH)) < br and ball.pos[1] < GOAL_Y:
+            ball.vel[0] = -abs(ball.vel[0]) * 0.7
+            ball.pos[0] = WIDTH - GOAL_WIDTH - br
 
         for player in (p1, p2):
             dx = ball.pos[0] - player.circle_x
@@ -75,8 +96,13 @@ def run_match(screen, clock, p1_team, p2_team):
         p2.draw(screen)
         ball.draw(screen)
 
-        pygame.draw.rect(screen, WHITE, goal_left, 2)
-        pygame.draw.rect(screen, WHITE, goal_right, 2)
+        t = GOAL_POST_THICKNESS
+        # Left goal: crossbar + right post
+        pygame.draw.line(screen, WHITE, (0, GOAL_Y), (GOAL_WIDTH, GOAL_Y), t)
+        pygame.draw.line(screen, WHITE, (GOAL_WIDTH, GOAL_Y), (GOAL_WIDTH, GROUND_Y), t)
+        # Right goal: crossbar + left post
+        pygame.draw.line(screen, WHITE, (WIDTH, GOAL_Y), (WIDTH - GOAL_WIDTH, GOAL_Y), t)
+        pygame.draw.line(screen, WHITE, (WIDTH - GOAL_WIDTH, GOAL_Y), (WIDTH - GOAL_WIDTH, GROUND_Y), t)
 
         score_text = font.render(f"{score1}  :  {score2}", True, WHITE)
         screen.blit(score_text, SCORE_TEXT_POS)
