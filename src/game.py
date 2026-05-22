@@ -54,6 +54,10 @@ def run_match(screen, clock, p1_team, p2_team):
                 rel_x = ball.pos[0] - player.rect.centerx
                 ball.vel[0] = player.vel_x * 1.5 + rel_x * 0.2
                 ball.vel[1] = player.vel_y * 0.3 - 10
+                if rel_x >= 0:
+                    ball.pos[0] = player.rect.right + ball.radius
+                else:
+                    ball.pos[0] = player.rect.left - ball.radius
 
         if goal_left.collidepoint(ball.pos[0], ball.pos[1]):
             score2 += 1
