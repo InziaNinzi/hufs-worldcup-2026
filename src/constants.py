@@ -56,6 +56,9 @@ GOAL_WIDTH = 50
 GOAL_HEIGHT = 150
 GOAL_Y = 400
 SCORE_TEXT_POS = (WIDTH // 2 - 40, 20)
+GOAL_CAPTION_TEXT = "GOAL"
+GOAL_CAPTION_DURATION = 1200
+GOAL_CAPTION_FADE_DURATION = 300
 
 # Resource paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

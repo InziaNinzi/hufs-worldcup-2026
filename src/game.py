@@ -3,6 +3,11 @@ import pygame
 from src.ball import Ball
 from src.constants import (
     FPS,
+    BLACK,
+    GOLD,
+    GOAL_CAPTION_DURATION,
+    GOAL_CAPTION_FADE_DURATION,
+    GOAL_CAPTION_TEXT,
     GOAL_HEIGHT,
     GOAL_WIDTH,
     GOAL_Y,
@@ -20,9 +25,34 @@ from src.constants import (
 from src.player import Player
 
 
+def draw_goal_caption(screen, font, started_at):
+    elapsed_time = pygame.time.get_ticks() - started_at
+    if elapsed_time >= GOAL_CAPTION_DURATION:
+        return False
+
+    remaining_time = GOAL_CAPTION_DURATION - elapsed_time
+    fade_time = min(elapsed_time, remaining_time, GOAL_CAPTION_FADE_DURATION)
+    alpha = int(255 * fade_time / GOAL_CAPTION_FADE_DURATION)
+
+    caption = font.render(GOAL_CAPTION_TEXT, True, GOLD)
+    shadow = font.render(GOAL_CAPTION_TEXT, True, BLACK)
+    caption.set_alpha(alpha)
+    shadow.set_alpha(alpha)
+
+    caption_rect = caption.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 80))
+    shadow_rect = shadow.get_rect(
+        center=(caption_rect.centerx + 4, caption_rect.centery + 4)
+    )
+
+    screen.blit(shadow, shadow_rect)
+    screen.blit(caption, caption_rect)
+    return True
+
+
 def run_match(screen, clock, p1_team, p2_team):
     font = pygame.font.SysFont("malgungothic", 40)
     name_font = pygame.font.SysFont("malgungothic", 22)
+    goal_caption_font = pygame.font.SysFont("malgungothic", 96, bold=True)
 
     score1, score2 = 0, 0
     p1 = Player(150, 500, P1_CONTROLS, p1_team["color"], PLAYER1_IMAGE_PATH)
@@ -33,6 +63,7 @@ def run_match(screen, clock, p1_team, p2_team):
 
     goal_left = pygame.Rect(0, GOAL_Y, GOAL_WIDTH, GOAL_HEIGHT)
     goal_right = pygame.Rect(WIDTH - GOAL_WIDTH, GOAL_Y, GOAL_WIDTH, GOAL_HEIGHT)
+    goal_caption_started_at = None
 
     running = True
     while running:
@@ -61,9 +92,11 @@ def run_match(screen, clock, p1_team, p2_team):
 
         if goal_left.collidepoint(ball.pos[0], ball.pos[1]):
             score2 += 1
+            goal_caption_started_at = pygame.time.get_ticks()
             ball.reset()
         if goal_right.collidepoint(ball.pos[0], ball.pos[1]):
             score1 += 1
+            goal_caption_started_at = pygame.time.get_ticks()
             ball.reset()
 
         p1.draw(screen)
@@ -80,6 +113,15 @@ def run_match(screen, clock, p1_team, p2_team):
         p2_label = name_font.render(p2.team_name, True, WHITE)
         screen.blit(p1_label, (20, 24))
         screen.blit(p2_label, (WIDTH - p2_label.get_width() - 20, 24))
+
+        if goal_caption_started_at is not None:
+            is_caption_visible = draw_goal_caption(
+                screen,
+                goal_caption_font,
+                goal_caption_started_at,
+            )
+            if not is_caption_visible:
+                goal_caption_started_at = None
 
         pygame.draw.line(screen, WHITE, (0, GROUND_Y), (WIDTH, GROUND_Y), 3)
         pygame.display.flip()
