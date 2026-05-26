@@ -66,6 +66,9 @@ def run_match(screen, clock, p1_team, p2_team):
             p1.move()
             p2.move()
             ball.update()
+
+            if is_golden_ball and score1 != score2:
+                game_over = True
             
            
         for player in (p1, p2):
