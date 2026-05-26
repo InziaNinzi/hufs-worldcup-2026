@@ -66,3 +66,7 @@ PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
 # Key settings
 P1_CONTROLS = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_LSHIFT]
 P2_CONTROLS = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_RSHIFT]
+
+PLAYER_SPEED = 7
+PLAYER_GRAVITY = 0.6
+PLAYER_RADIUS = 30
