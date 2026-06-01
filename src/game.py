@@ -10,6 +10,7 @@ from src.constants import (
     GREEN,
     GROUND_Y,
     HEIGHT,
+    MATCH_WIN_SCORE,
     P1_CONTROLS,
     P2_CONTROLS,
     PLAYER1_IMAGE_PATH,
@@ -87,9 +88,21 @@ def run_match(screen, clock, p1_team, p2_team):
 
         if goal_left.collidepoint(ball.pos[0], ball.pos[1]):
             score2 += 1
+            if score2 >= MATCH_WIN_SCORE:
+                return {
+                    "winner": p2_team,
+                    "loser": p1_team,
+                    "score": (score1, score2),
+                }
             ball.reset()
         if goal_right.collidepoint(ball.pos[0], ball.pos[1]):
             score1 += 1
+            if score1 >= MATCH_WIN_SCORE:
+                return {
+                    "winner": p1_team,
+                    "loser": p2_team,
+                    "score": (score1, score2),
+                }
             ball.reset()
 
         p1.draw(screen)

@@ -8,7 +8,7 @@ from src.constants import (
     HEIGHT,
     LIGHT_GRAY,
     PLAYER_SIZE,
-    TEAMS,
+    TOURNAMENT_TEAMS,
     WHITE,
     WIDTH,
 )
@@ -27,7 +27,7 @@ class SelectionMenu:
 
     def run(self, screen, clock):
         self.p1_index = 0
-        self.p2_index = min(1, len(TEAMS) - 1)
+        self.p2_index = min(1, len(TOURNAMENT_TEAMS) - 1)
         self.p1_ready = False
         self.p2_ready = False
 
@@ -51,28 +51,36 @@ class SelectionMenu:
 
         if not self.p1_ready:
             if key == pygame.K_w:
-                self.p1_index = (self.p1_index - 1) % len(TEAMS)
+                self.p1_index = (self.p1_index - 1) % len(TOURNAMENT_TEAMS)
             elif key == pygame.K_s:
-                self.p1_index = (self.p1_index + 1) % len(TEAMS)
+                self.p1_index = (self.p1_index + 1) % len(TOURNAMENT_TEAMS)
             elif key in (pygame.K_RETURN, pygame.K_SPACE):
                 self.p1_ready = True
+                if self.p2_index == self.p1_index:
+                    self._move_p2_index(1)
             return None
 
         if not self.p2_ready:
             if key == pygame.K_UP:
-                self.p2_index = (self.p2_index - 1) % len(TEAMS)
+                self._move_p2_index(-1)
             elif key == pygame.K_DOWN:
-                self.p2_index = (self.p2_index + 1) % len(TEAMS)
+                self._move_p2_index(1)
             elif key in (pygame.K_RETURN, pygame.K_KP_ENTER):
-                self.p2_ready = True
+                if self.p2_index != self.p1_index:
+                    self.p2_ready = True
             return None
 
         if key in (pygame.K_RETURN, pygame.K_SPACE):
             return {
-                "p1": TEAMS[self.p1_index],
-                "p2": TEAMS[self.p2_index],
+                "p1": TOURNAMENT_TEAMS[self.p1_index],
+                "p2": TOURNAMENT_TEAMS[self.p2_index],
             }
         return None
+
+    def _move_p2_index(self, direction):
+        self.p2_index = (self.p2_index + direction) % len(TOURNAMENT_TEAMS)
+        while self.p2_index == self.p1_index:
+            self.p2_index = (self.p2_index + direction) % len(TOURNAMENT_TEAMS)
 
     def _draw(self, screen):
         screen.fill(GREEN)
@@ -96,7 +104,7 @@ class SelectionMenu:
         label_surf = self.label_font.render(label, True, GOLD if is_p1 else LIGHT_GRAY)
         screen.blit(label_surf, (panel.centerx - label_surf.get_width() // 2, panel.y + 16))
 
-        team = TEAMS[team_index]
+        team = TOURNAMENT_TEAMS[team_index]
         preview_x = panel.centerx - PLAYER_SIZE[0] // 2
         preview_y = panel.centery - 20
         preview = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
