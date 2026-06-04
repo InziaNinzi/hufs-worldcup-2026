@@ -1,5 +1,23 @@
 import pygame
+
 from src.constants import GROUND_Y, WIDTH, PLAYER_SPEED, PLAYER_GRAVITY, PLAYER_RADIUS
+
+
+from src.constants import (
+    GROUND_Y,
+    HEIGHT,
+    PLAYER_DASH_COOLDOWN,
+    PLAYER_DASH_DURATION,
+    PLAYER_DASH_SPEED,
+    PLAYER_GRAVITY,
+    PLAYER_JUMP_VELOCITY,
+    PLAYER_RADIUS,
+    PLAYER_SIZE,
+    PLAYER_SPEED,
+    WIDTH,
+)
+
+main
 
 class Player:
     def __init__(self, x, y, controls, color, char_type="NORMAL", image_path=None):
@@ -27,8 +45,31 @@ class Player:
         self.vel_x = 0
         self.vel_y = 0
         self.gravity = PLAYER_GRAVITY
+
         self.is_jumping = False
         self.image = pygame.image.load(image_path).convert_alpha() if image_path else None
+
+        self.vel_x = 0
+        self.radius = PLAYER_RADIUS
+        self.color = color
+        self.last_dir = 1
+        self.is_dashing = False
+        self.dash_timer = 0
+        self.dash_cooldown_timer = 0
+        self._dash_key_prev = False
+
+    def _load_or_fallback_image(self, image_path, color):
+        if image_path and isinstance(image_path, (str, os.PathLike)) and os.path.exists(image_path):
+            try:
+                image = pygame.image.load(image_path).convert_alpha()
+                return pygame.transform.scale(image, PLAYER_SIZE)
+            except pygame.error:
+                pass
+
+        fallback = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
+        fallback.fill(color)
+        return fallback
+ main
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -63,8 +104,20 @@ class Player:
     @property
     def circle_y(self): return self.rect.centery
 
+    @property
+    def circle_x(self):
+        return self.rect.centerx
+
+    @property
+    def circle_y(self):
+        return self.rect.centery
+
     def draw(self, surface):
         if self.image:
             surface.blit(self.image, self.rect)
         else:
+
             pygame.draw.circle(surface, self.color, (self.circle_x, self.circle_y), self.radius)
+
+            pygame.draw.circle(surface, self.color, (self.circle_x, self.circle_y), self.radius)
+ main
