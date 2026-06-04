@@ -23,6 +23,11 @@ from src.player import Player
 
 
 def run_match(screen, clock, p1_team, p2_team):
+    # 타이머 변수 세팅
+    total_time = 90
+    start_ticks = pygame.time.get_ticks()
+    game_over = False
+    is_golden_ball = False
     font = pygame.font.SysFont("malgungothic", 40)
     name_font = pygame.font.SysFont("malgungothic", 22)
 
@@ -38,6 +43,17 @@ def run_match(screen, clock, p1_team, p2_team):
 
     running = True
     while running:
+       # 90초 카운트다운 로직
+        # 골든볼 연장전이 아닐 때만 타이머가 작동하도록 조건을 추가합니다.
+        if not game_over and not is_golden_ball:
+            seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
+            remaining_time = max(0, total_time - seconds_passed)
+            
+            if remaining_time <= 0:
+                if score1 == score2:
+                    is_golden_ball = True # 동점이면 연장전
+                else:
+                    game_over = True # 승패 갈리면 게임 종료
         clock.tick(FPS)
         screen.fill(SKY_BLUE)
         pygame.draw.rect(screen, GREEN, (0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y))
@@ -48,10 +64,16 @@ def run_match(screen, clock, p1_team, p2_team):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return True
 
-        p1.move()
-        p2.move()
-        ball.update()
+       # 게임 오버가 아닐 때만 캐릭터와 공이 움직이도록 제어합니다.
+        if not game_over:
+            p1.move()
+            p2.move()
+            ball.update()
 
+        if is_golden_ball and score1 != score2:
+                game_over = True
+            
+           
         br = ball.radius
         # Left goal crossbar
         if ball.pos[0] - br < GOAL_WIDTH and abs(ball.pos[1] - GOAL_Y) < br:
@@ -70,6 +92,7 @@ def run_match(screen, clock, p1_team, p2_team):
             ball.vel[0] = -abs(ball.vel[0]) * 0.7
             ball.pos[0] = WIDTH - GOAL_WIDTH - br
 
+ main
         for player in (p1, p2):
             dx = ball.pos[0] - player.circle_x
             dy = ball.pos[1] - player.circle_y
@@ -106,6 +129,14 @@ def run_match(screen, clock, p1_team, p2_team):
 
         score_text = font.render(f"{score1}  :  {score2}", True, WHITE)
         screen.blit(score_text, SCORE_TEXT_POS)
+        # 타이머 화면에 그리기
+        if is_golden_ball:
+            time_text = font.render("GOLDEN BALL!", True, WHITE)
+        else:
+            time_text = font.render(f"TIME: {int(remaining_time)}s", True, WHITE)
+        # 화면의 가로 중앙을 계산하고, 점수판 아래에 타이머를 가운데 정렬합니다.
+        timer_rect = time_text.get_rect(center=(screen.get_width() // 2, 100))
+        screen.blit(time_text, timer_rect)
 
         p1_label = name_font.render(p1.team_name, True, WHITE)
         p2_label = name_font.render(p2.team_name, True, WHITE)
