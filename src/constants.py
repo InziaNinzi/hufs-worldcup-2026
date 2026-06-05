@@ -26,13 +26,18 @@ STATE_SELECTION = "selection"
 STATE_PLAYING = "playing"
 STATE_RESULT = "result"
 
-# Tournament teams (name, display name, jersey color)
-TOURNAMENT_TEAMS = [
+# Menu teams (name, display name, jersey color)
+TEAMS = [
     {"id": "korea", "name": "대한민국", "color": (200, 16, 46)},
     {"id": "brazil", "name": "브라질", "color": (255, 223, 0)},
     {"id": "france", "name": "프랑스", "color": (0, 35, 149)},
     {"id": "argentina", "name": "아르헨티나", "color": (117, 170, 219)},
+    {"id": "usa", "name": "미국", "color": (255, 255, 255)},
+    {"id": "senegal", "name": "세네갈", "color": (0, 100, 0)},
+    {"id": "portugal", "name": "포르투갈", "color": (139, 0, 0)},
+    {"id": "england", "name": "잉글랜드", "color": (255, 255, 255)},
 ]
+TOURNAMENT_TEAMS = TEAMS[:4]
 
 # Gameplay constants
 PLAYER_SIZE = (60, 90)
@@ -67,3 +72,7 @@ PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
 # Key settings
 P1_CONTROLS = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_LSHIFT]
 P2_CONTROLS = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_RSHIFT]
+
+PLAYER_SPEED = 7
+PLAYER_GRAVITY = 0.6
+PLAYER_RADIUS = 30
