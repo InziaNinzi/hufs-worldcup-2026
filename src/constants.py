@@ -22,6 +22,7 @@ LIGHT_GRAY = (220, 220, 220)
 
 # Game states
 STATE_TITLE = "title"
+STATE_BACKGROUND = "background"
 STATE_SELECTION = "selection"
 STATE_PLAYING = "playing"
 STATE_RESULT = "result"
@@ -66,8 +67,27 @@ MATCH_WIN_SCORE = 3
 # Resource paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(PROJECT_ROOT, "assets")
+BACKGROUND_DIR = os.path.join(ASSETS_DIR, "backgrounds")
 PLAYER1_IMAGE_PATH = os.path.join(ASSETS_DIR, "player1.png")
 PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
+
+STADIUM_BACKGROUNDS = [
+    {
+        "id": "usa",
+        "name": "미국",
+        "path": os.path.join(BACKGROUND_DIR, "usa_stadium.png"),
+    },
+    {
+        "id": "canada",
+        "name": "캐나다",
+        "path": os.path.join(BACKGROUND_DIR, "canada_stadium.png"),
+    },
+    {
+        "id": "mexico",
+        "name": "멕시코",
+        "path": os.path.join(BACKGROUND_DIR, "mexico_stadium.png"),
+    },
+]
 
 # Key settings
 P1_CONTROLS = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_LSHIFT]

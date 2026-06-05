@@ -2,8 +2,10 @@ import sys
 
 import pygame
 
+from src.background_selection import BackgroundSelection
 from src.constants import (
     HEIGHT,
+    STATE_BACKGROUND,
     STATE_PLAYING,
     STATE_RESULT,
     STATE_SELECTION,
@@ -54,6 +56,7 @@ def reset_tournament():
         "locked_winner_team": None,
         "final_candidate_teams": None,
         "is_final_match": False,
+        "selected_background": None,
     }
 
 
@@ -64,6 +67,7 @@ def main():
     clock = pygame.time.Clock()
 
     title_screen = TitleScreen()
+    background_selection = BackgroundSelection()
     selection_menu = SelectionMenu()
     result_screen = ResultScreen()
     state = STATE_TITLE
@@ -75,6 +79,17 @@ def main():
             if next_state is None:
                 break
             tournament = reset_tournament()
+            state = STATE_BACKGROUND
+
+        elif state == STATE_BACKGROUND:
+            selected_background = background_selection.run(screen, clock)
+            if selected_background is None:
+                break
+            if selected_background == "title":
+                tournament = reset_tournament()
+                state = STATE_TITLE
+                continue
+            tournament["selected_background"] = selected_background
             state = STATE_SELECTION
 
         elif state == STATE_SELECTION:
@@ -105,6 +120,7 @@ def main():
                 clock,
                 selected_teams[0],
                 selected_teams[1],
+                tournament["selected_background"],
             )
             if match_result is False:
                 break
