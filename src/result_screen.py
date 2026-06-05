@@ -1,5 +1,3 @@
-import random
-
 import pygame
 
 from src.constants import (
@@ -9,7 +7,6 @@ from src.constants import (
     GRAY,
     GREEN,
     HEIGHT,
-    TOURNAMENT_TEAMS,
     WHITE,
     WIDTH,
 )
@@ -22,9 +19,7 @@ class ResultScreen:
         self.text_font = pygame.font.SysFont("malgungothic", 24)
         self.hint_font = pygame.font.SysFont("malgungothic", 20)
 
-    def run(self, screen, clock, match_result, selected_teams):
-        bracket = self._create_bracket(match_result, selected_teams)
-
+    def run(self, screen, clock, match_result, bracket, is_final=False):
         while True:
             clock.tick(FPS)
 
@@ -32,37 +27,20 @@ class ResultScreen:
                 if event.type == pygame.QUIT:
                     return None
                 if event.type == pygame.KEYDOWN:
-                    if event.key in (
-                        pygame.K_ESCAPE,
-                        pygame.K_RETURN,
-                        pygame.K_SPACE,
-                    ):
+                    if event.key == pygame.K_ESCAPE:
                         return "selection"
+                    if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                        return "selection" if is_final else "final_selection"
 
-            self._draw(screen, bracket, match_result)
+            self._draw(screen, bracket, match_result, is_final)
             pygame.display.flip()
 
-    def _create_bracket(self, match_result, selected_teams):
-        selected_ids = {team["id"] for team in selected_teams}
-        remaining_teams = [
-            team for team in TOURNAMENT_TEAMS
-            if team["id"] not in selected_ids
-        ]
-        final_opponent = random.choice(remaining_teams)
-
-        return {
-            "semi_1": selected_teams,
-            "semi_1_winner": match_result["winner"],
-            "semi_2": remaining_teams,
-            "semi_2_winner": final_opponent,
-            "final": [match_result["winner"], final_opponent],
-        }
-
-    def _draw(self, screen, bracket, match_result):
+    def _draw(self, screen, bracket, match_result, is_final):
         screen.fill(DARK_GREEN)
         pygame.draw.rect(screen, GREEN, (0, HEIGHT - 70, WIDTH, 70))
 
-        title = self.title_font.render("Tournament Result", True, GOLD)
+        title_text = "Final Result" if is_final else "Tournament Result"
+        title = self.title_font.render(title_text, True, GOLD)
         screen.blit(title, title.get_rect(center=(WIDTH // 2, 54)))
 
         score_text = f"{match_result['score'][0]} : {match_result['score'][1]}"
@@ -81,13 +59,15 @@ class ResultScreen:
         self._draw_connector(screen, (350, 430), (620, 365))
 
         self._draw_winner_label(screen, 380, 215, bracket["semi_1_winner"])
-        self._draw_winner_label(screen, 380, 405, bracket["semi_2_winner"])
+        if bracket["semi_2_winner"] is not None:
+            self._draw_winner_label(screen, 380, 405, bracket["semi_2_winner"])
+        if is_final:
+            self._draw_champion_label(screen, bracket["champion"])
 
-        hint = self.hint_font.render(
-            "SPACE/ENTER: team selection  |  ESC: team selection",
-            True,
-            GRAY,
-        )
+        hint_text = "SPACE/ENTER: team selection  |  ESC: team selection"
+        if not is_final:
+            hint_text = "SPACE/ENTER: select final opponent  |  ESC: team selection"
+        hint = self.hint_font.render(hint_text, True, GRAY)
         screen.blit(hint, hint.get_rect(center=(WIDTH // 2, HEIGHT - 34)))
 
     def _draw_match_box(self, screen, x, y, title, teams):
@@ -119,3 +99,7 @@ class ResultScreen:
     def _draw_winner_label(self, screen, x, y, team):
         label = self.hint_font.render(f"Advance: {team['name']}", True, GOLD)
         screen.blit(label, (x, y))
+
+    def _draw_champion_label(self, screen, team):
+        champion = self.team_font.render(f"Champion: {team['name']}", True, GOLD)
+        screen.blit(champion, champion.get_rect(center=(WIDTH // 2, 150)))

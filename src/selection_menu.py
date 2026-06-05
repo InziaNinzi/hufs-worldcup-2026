@@ -20,16 +20,24 @@ class SelectionMenu:
         self.label_font = pygame.font.SysFont("malgungothic", 28)
         self.team_font = pygame.font.SysFont("malgungothic", 32, bold=True)
         self.hint_font = pygame.font.SysFont("malgungothic", 22)
+        self.vs_font = pygame.font.SysFont("malgungothic", 48, bold=True)
         self.p1_index = 0
         self.p2_index = 1
         self.p1_ready = False
         self.p2_ready = False
+        self.locked_p1_team = None
+        self.p2_options = TOURNAMENT_TEAMS
 
-    def run(self, screen, clock):
+    def run(self, screen, clock, locked_p1_team=None, p2_options=None):
+        self.locked_p1_team = locked_p1_team
+        self.p2_options = p2_options or self._default_p2_options()
         self.p1_index = 0
-        self.p2_index = min(1, len(TOURNAMENT_TEAMS) - 1)
-        self.p1_ready = False
+        self.p2_index = 0 if locked_p1_team else min(1, len(self.p2_options) - 1)
+        self.p1_ready = locked_p1_team is not None
         self.p2_ready = False
+
+        if self.p2_index < 0:
+            self.p2_index = 0
 
         while True:
             clock.tick(FPS)
@@ -45,9 +53,17 @@ class SelectionMenu:
             self._draw(screen)
             pygame.display.flip()
 
+    def _default_p2_options(self):
+        if self.locked_p1_team is None:
+            return TOURNAMENT_TEAMS
+        return [
+            team for team in TOURNAMENT_TEAMS
+            if team["id"] != self.locked_p1_team["id"]
+        ]
+
     def _handle_key(self, key):
         if key == pygame.K_ESCAPE:
-            return "title"
+            return "title" if self.locked_p1_team is None else "selection"
 
         if not self.p1_ready:
             if key == pygame.K_w:
@@ -56,7 +72,7 @@ class SelectionMenu:
                 self.p1_index = (self.p1_index + 1) % len(TOURNAMENT_TEAMS)
             elif key in (pygame.K_RETURN, pygame.K_SPACE):
                 self.p1_ready = True
-                if self.p2_index == self.p1_index:
+                if self._current_p2_team() == self._current_p1_team():
                     self._move_p2_index(1)
             return None
 
@@ -66,45 +82,76 @@ class SelectionMenu:
             elif key == pygame.K_DOWN:
                 self._move_p2_index(1)
             elif key in (pygame.K_RETURN, pygame.K_KP_ENTER):
-                if self.p2_index != self.p1_index:
+                if self._current_p2_team() != self._current_p1_team():
                     self.p2_ready = True
             return None
 
         if key in (pygame.K_RETURN, pygame.K_SPACE):
             return {
-                "p1": TOURNAMENT_TEAMS[self.p1_index],
-                "p2": TOURNAMENT_TEAMS[self.p2_index],
+                "p1": self._current_p1_team(),
+                "p2": self._current_p2_team(),
             }
         return None
 
     def _move_p2_index(self, direction):
-        self.p2_index = (self.p2_index + direction) % len(TOURNAMENT_TEAMS)
-        while self.p2_index == self.p1_index:
-            self.p2_index = (self.p2_index + direction) % len(TOURNAMENT_TEAMS)
+        if len(self.p2_options) < 2:
+            return
+
+        self.p2_index = (self.p2_index + direction) % len(self.p2_options)
+        while self._current_p2_team() == self._current_p1_team():
+            self.p2_index = (self.p2_index + direction) % len(self.p2_options)
+
+    def _current_p1_team(self):
+        if self.locked_p1_team is not None:
+            return self.locked_p1_team
+        return TOURNAMENT_TEAMS[self.p1_index]
+
+    def _current_p2_team(self):
+        if not self.p2_options:
+            return self._current_p1_team()
+        return self.p2_options[self.p2_index]
 
     def _draw(self, screen):
         screen.fill(GREEN)
         pygame.draw.rect(screen, (28, 100, 48), (0, HEIGHT - 60, WIDTH, 60))
 
-        title = self.title_font.render("팀 선택", True, GOLD)
+        title_text = "결승 상대 선택" if self.locked_p1_team else "팀 선택"
+        title = self.title_font.render(title_text, True, GOLD)
         screen.blit(title, title.get_rect(center=(WIDTH // 2, 50)))
 
-        self._draw_panel(screen, 80, "1P", self.p1_index, self.p1_ready, True)
-        self._draw_panel(screen, WIDTH // 2 + 40, "2P", self.p2_index, self.p2_ready, False)
+        self._draw_panel(
+            screen,
+            80,
+            "1P",
+            self._current_p1_team(),
+            self.p1_ready,
+            True,
+        )
+        self._draw_panel(
+            screen,
+            WIDTH // 2 + 40,
+            "2P",
+            self._current_p2_team(),
+            self.p2_ready,
+            False,
+        )
         self._draw_vs(screen)
         self._draw_hints(screen)
 
-    def _draw_panel(self, screen, x, label, team_index, ready, is_p1):
+    def _draw_panel(self, screen, x, label, team, ready, is_p1):
         panel_w, panel_h = 380, 380
         panel = pygame.Rect(x, 120, panel_w, panel_h)
         border_color = GOLD if ready else WHITE
         pygame.draw.rect(screen, (20, 70, 35), panel, border_radius=12)
         pygame.draw.rect(screen, border_color, panel, 3, border_radius=12)
 
-        label_surf = self.label_font.render(label, True, GOLD if is_p1 else LIGHT_GRAY)
-        screen.blit(label_surf, (panel.centerx - label_surf.get_width() // 2, panel.y + 16))
+        label_color = GOLD if is_p1 else LIGHT_GRAY
+        label_surf = self.label_font.render(label, True, label_color)
+        screen.blit(
+            label_surf,
+            (panel.centerx - label_surf.get_width() // 2, panel.y + 16),
+        )
 
-        team = TOURNAMENT_TEAMS[team_index]
         preview_x = panel.centerx - PLAYER_SIZE[0] // 2
         preview_y = panel.centery - 20
         preview = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
@@ -114,25 +161,32 @@ class SelectionMenu:
         screen.blit(preview, (preview_x, preview_y))
 
         name_surf = self.team_font.render(team["name"], True, WHITE)
-        screen.blit(name_surf, (panel.centerx - name_surf.get_width() // 2, panel.bottom - 70))
+        screen.blit(
+            name_surf,
+            (panel.centerx - name_surf.get_width() // 2, panel.bottom - 70),
+        )
 
-        status = "선택 완료 ✓" if ready else "팀 고르는 중..."
+        status = "선택 완료" if ready else "팀 고르는 중..."
         status_color = GOLD if ready else GRAY
         status_surf = self.hint_font.render(status, True, status_color)
-        screen.blit(status_surf, (panel.centerx - status_surf.get_width() // 2, panel.bottom - 38))
+        screen.blit(
+            status_surf,
+            (panel.centerx - status_surf.get_width() // 2, panel.bottom - 38),
+        )
 
     def _draw_vs(self, screen):
-        vs_font = pygame.font.SysFont("malgungothic", 48, bold=True)
-        vs = vs_font.render("VS", True, WHITE)
+        vs = self.vs_font.render("VS", True, WHITE)
         screen.blit(vs, vs.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
 
     def _draw_hints(self, screen):
-        if not self.p1_ready:
+        if self.locked_p1_team is not None and not self.p2_ready:
+            hint = "2P: ↑/↓ 팀 변경 · ENTER 확정"
+        elif not self.p1_ready:
             hint = "1P: W/S 팀 변경 · SPACE/ENTER 확정"
         elif not self.p2_ready:
             hint = "2P: ↑/↓ 팀 변경 · ENTER 확정"
         else:
-            hint = "SPACE/ENTER — 경기 시작  |  ESC — 타이틀로"
+            hint = "SPACE/ENTER 경기 시작  |  ESC 팀 선택으로"
 
         surf = self.hint_font.render(hint, True, WHITE)
         screen.blit(surf, surf.get_rect(center=(WIDTH // 2, HEIGHT - 28)))

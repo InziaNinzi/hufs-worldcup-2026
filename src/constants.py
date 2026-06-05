@@ -26,18 +26,13 @@ STATE_SELECTION = "selection"
 STATE_PLAYING = "playing"
 STATE_RESULT = "result"
 
-# Menu teams (name, display name, jersey color)
-TEAMS = [
+# Tournament teams (name, display name, jersey color)
+TOURNAMENT_TEAMS = [
     {"id": "korea", "name": "대한민국", "color": (200, 16, 46)},
     {"id": "brazil", "name": "브라질", "color": (255, 223, 0)},
     {"id": "france", "name": "프랑스", "color": (0, 35, 149)},
     {"id": "argentina", "name": "아르헨티나", "color": (117, 170, 219)},
-    {"id": "germany", "name": "독일", "color": (255, 255, 255)},
-    {"id": "japan", "name": "일본", "color": (188, 0, 45)},
-    {"id": "spain", "name": "스페인", "color": (200, 16, 46)},
-    {"id": "england", "name": "잉글랜드", "color": (255, 255, 255)},
 ]
-TOURNAMENT_TEAMS = TEAMS[:4]
 
 # Gameplay constants
 PLAYER_SIZE = (60, 90)
