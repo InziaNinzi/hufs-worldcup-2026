@@ -24,6 +24,7 @@ LIGHT_GRAY = (220, 220, 220)
 STATE_TITLE = "title"
 STATE_SELECTION = "selection"
 STATE_PLAYING = "playing"
+STATE_RESULT = "result"
 
 # Menu teams (name, display name, jersey color)
 TEAMS = [
@@ -36,6 +37,7 @@ TEAMS = [
     {"id": "portugal", "name": "포르투갈", "color": (139, 0, 0)},
     {"id": "england", "name": "잉글랜드", "color": (255, 255, 255)},
 ]
+TOURNAMENT_TEAMS = TEAMS[:4]
 
 # Gameplay constants
 PLAYER_SIZE = (60, 90)
@@ -59,6 +61,7 @@ GOAL_HEIGHT = 150
 GOAL_Y = 400
 GOAL_POST_THICKNESS = 6
 SCORE_TEXT_POS = (WIDTH // 2 - 40, 20)
+MATCH_WIN_SCORE = 3
 
 # Resource paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

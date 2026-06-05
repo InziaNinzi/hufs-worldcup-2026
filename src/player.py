@@ -1,7 +1,6 @@
+import os
+
 import pygame
-
-from src.constants import GROUND_Y, WIDTH, PLAYER_SPEED, PLAYER_GRAVITY, PLAYER_RADIUS
-
 
 from src.constants import (
     GROUND_Y,
@@ -18,13 +17,12 @@ from src.constants import (
 )
 
 
-
 class Player:
-    def __init__(self, x, y, controls, color, char_type="NORMAL", image_path=None):
-        self.controls = controls 
+    def __init__(self, x, y, controls, color, image_path=None, char_type="NORMAL"):
+        self.controls = controls
         self.color = color
         self.radius = PLAYER_RADIUS
-        
+
         #  캐릭터 타입별 개성 부여 (스탯 밸런싱)
         self.char_type = char_type
         if char_type == "SPEEDY":      # 속도형 캐릭터
@@ -35,7 +33,7 @@ class Player:
             self.speed = 5
             self.power = 2.0
             self.jump_velocity = -11
-        else:                          # 밸런스형 캐릭터 
+        else:                          # 밸런스형 캐릭터
             self.speed = 7
             self.power = 1.5
             self.jump_velocity = -13
@@ -47,7 +45,7 @@ class Player:
         self.gravity = PLAYER_GRAVITY
 
         self.is_jumping = False
-        self.image = pygame.image.load(image_path).convert_alpha() if image_path else None
+        self.image = self._load_or_fallback_image(image_path, color)
 
         self.vel_x = 0
         self.radius = PLAYER_RADIUS
@@ -69,7 +67,6 @@ class Player:
         fallback = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
         fallback.fill(color)
         return fallback
- 
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -79,30 +76,26 @@ class Player:
             self.rect.x -= self.speed
         if keys[self.controls[1]]:
             self.rect.x += self.speed
-            
+
         if keys[self.controls[2]] and not self.is_jumping:
             self.vel_y = self.jump_velocity
             self.is_jumping = True
 
         self.vel_y += self.gravity
         self.rect.y += self.vel_y
-        
+
         # 바닥 충돌 및 화면 밖 이탈 방지
         if self.rect.bottom >= GROUND_Y:
             self.rect.bottom = GROUND_Y
             self.vel_y = 0
             self.is_jumping = False
-            
-        if self.rect.left < 0: self.rect.left = 0
-        if self.rect.right > WIDTH: self.rect.right = WIDTH
-        
+
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+
         self.vel_x = self.rect.x - prev_x
-
-    @property
-    def circle_x(self): return self.rect.centerx
-
-    @property
-    def circle_y(self): return self.rect.centery
 
     @property
     def circle_x(self):
@@ -116,8 +109,4 @@ class Player:
         if self.image:
             surface.blit(self.image, self.rect)
         else:
-
             pygame.draw.circle(surface, self.color, (self.circle_x, self.circle_y), self.radius)
-
-            pygame.draw.circle(surface, self.color, (self.circle_x, self.circle_y), self.radius)
- 

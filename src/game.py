@@ -10,6 +10,7 @@ from src.constants import (
     GREEN,
     GROUND_Y,
     HEIGHT,
+    MATCH_WIN_SCORE,
     P1_CONTROLS,
     P2_CONTROLS,
     PLAYER1_IMAGE_PATH,
@@ -43,17 +44,17 @@ def run_match(screen, clock, p1_team, p2_team):
 
     running = True
     while running:
-       # 90초 카운트다운 로직
+        # 90초 카운트다운 로직
         # 골든볼 연장전이 아닐 때만 타이머가 작동하도록 조건을 추가합니다.
         if not game_over and not is_golden_ball:
             seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
             remaining_time = max(0, total_time - seconds_passed)
-            
+
             if remaining_time <= 0:
                 if score1 == score2:
-                    is_golden_ball = True # 동점이면 연장전
+                    is_golden_ball = True  # 동점이면 연장전
                 else:
-                    game_over = True # 승패 갈리면 게임 종료
+                    game_over = True  # 승패 갈리면 게임 종료
         clock.tick(FPS)
         screen.fill(SKY_BLUE)
         pygame.draw.rect(screen, GREEN, (0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y))
@@ -64,16 +65,15 @@ def run_match(screen, clock, p1_team, p2_team):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return True
 
-       # 게임 오버가 아닐 때만 캐릭터와 공이 움직이도록 제어합니다.
+        # 게임 오버가 아닐 때만 캐릭터와 공이 움직이도록 제어합니다.
         if not game_over:
             p1.move()
             p2.move()
             ball.update()
 
         if is_golden_ball and score1 != score2:
-                game_over = True
-            
-           
+            game_over = True
+
         br = ball.radius
         # Left goal crossbar
         if ball.pos[0] - br < GOAL_WIDTH and abs(ball.pos[1] - GOAL_Y) < br:
@@ -92,7 +92,6 @@ def run_match(screen, clock, p1_team, p2_team):
             ball.vel[0] = -abs(ball.vel[0]) * 0.7
             ball.pos[0] = WIDTH - GOAL_WIDTH - br
 
- 
         for player in (p1, p2):
             dx = ball.pos[0] - player.circle_x
             dy = ball.pos[1] - player.circle_y
@@ -110,9 +109,21 @@ def run_match(screen, clock, p1_team, p2_team):
 
         if goal_left.collidepoint(ball.pos[0], ball.pos[1]):
             score2 += 1
+            if score2 >= MATCH_WIN_SCORE:
+                return {
+                    "winner": p2_team,
+                    "loser": p1_team,
+                    "score": (score1, score2),
+                }
             ball.reset()
         if goal_right.collidepoint(ball.pos[0], ball.pos[1]):
             score1 += 1
+            if score1 >= MATCH_WIN_SCORE:
+                return {
+                    "winner": p1_team,
+                    "loser": p2_team,
+                    "score": (score1, score2),
+                }
             ball.reset()
 
         p1.draw(screen)
