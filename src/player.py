@@ -120,4 +120,4 @@ class Player:
             pygame.draw.circle(surface, self.color, (self.circle_x, self.circle_y), self.radius)
 
             pygame.draw.circle(surface, self.color, (self.circle_x, self.circle_y), self.radius)
- main
+ 
