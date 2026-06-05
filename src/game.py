@@ -92,7 +92,7 @@ def run_match(screen, clock, p1_team, p2_team):
             ball.vel[0] = -abs(ball.vel[0]) * 0.7
             ball.pos[0] = WIDTH - GOAL_WIDTH - br
 
- main
+ 
         for player in (p1, p2):
             dx = ball.pos[0] - player.circle_x
             dy = ball.pos[1] - player.circle_y
