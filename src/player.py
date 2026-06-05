@@ -69,7 +69,7 @@ class Player:
         fallback = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
         fallback.fill(color)
         return fallback
- main
+ 
 
     def move(self):
         keys = pygame.key.get_pressed()
