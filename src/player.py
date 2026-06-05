@@ -17,7 +17,7 @@ from src.constants import (
     WIDTH,
 )
 
-main
+
 
 class Player:
     def __init__(self, x, y, controls, color, char_type="NORMAL", image_path=None):
