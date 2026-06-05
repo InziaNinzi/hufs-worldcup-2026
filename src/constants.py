@@ -31,9 +31,9 @@ TEAMS = [
     {"id": "brazil", "name": "브라질", "color": (255, 223, 0)},
     {"id": "france", "name": "프랑스", "color": (0, 35, 149)},
     {"id": "argentina", "name": "아르헨티나", "color": (117, 170, 219)},
-    {"id": "germany", "name": "독일", "color": (255, 255, 255)},
-    {"id": "japan", "name": "일본", "color": (188, 0, 45)},
-    {"id": "spain", "name": "스페인", "color": (200, 16, 46)},
+    {"id": "usa", "name": "미국", "color": (255, 255, 255)},
+    {"id": "senegal", "name": "세네갈", "color": (0, 100, 0)},
+    {"id": "portugal", "name": "포르투갈", "color": (139, 0, 0)},
     {"id": "england", "name": "잉글랜드", "color": (255, 255, 255)},
 ]
 
