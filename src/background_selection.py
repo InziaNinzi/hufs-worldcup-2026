@@ -75,9 +75,10 @@ class BackgroundSelection:
         title = self.title_font.render("경기장 배경 선택", True, GOLD)
         screen.blit(title, title.get_rect(center=(WIDTH // 2, 55)))
 
-        start_x = 80
-        card_gap = 40
         card_width = 280
+        card_gap = 40
+        n = len(STADIUM_BACKGROUNDS)
+        start_x = (WIDTH - n * card_width - (n - 1) * card_gap) // 2
 
         for index, background in enumerate(STADIUM_BACKGROUNDS):
             x = start_x + index * (card_width + card_gap)
