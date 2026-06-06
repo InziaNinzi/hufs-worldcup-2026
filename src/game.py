@@ -23,7 +23,28 @@ from src.constants import (
 from src.player import Player
 
 
-def run_match(screen, clock, p1_team, p2_team):
+def load_stadium_background(background):
+    if not background:
+        return None
+
+    try:
+        image = pygame.image.load(background["path"]).convert()
+    except (pygame.error, FileNotFoundError):
+        return None
+
+    return pygame.transform.scale(image, (WIDTH, HEIGHT))
+
+
+def draw_match_background(screen, background_image):
+    if background_image:
+        screen.blit(background_image, (0, 0))
+        return
+
+    screen.fill(SKY_BLUE)
+    pygame.draw.rect(screen, GREEN, (0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y))
+
+
+def run_match(screen, clock, p1_team, p2_team, stadium_background=None):
     # 타이머 변수 세팅
     total_time = 90
     start_ticks = pygame.time.get_ticks()
@@ -38,6 +59,7 @@ def run_match(screen, clock, p1_team, p2_team):
     p1.team_name = p1_team["name"]
     p2.team_name = p2_team["name"]
     ball = Ball()
+    background_image = load_stadium_background(stadium_background)
 
     goal_left = pygame.Rect(0, GOAL_Y, GOAL_WIDTH, GOAL_HEIGHT)
     goal_right = pygame.Rect(WIDTH - GOAL_WIDTH, GOAL_Y, GOAL_WIDTH, GOAL_HEIGHT)
@@ -56,8 +78,7 @@ def run_match(screen, clock, p1_team, p2_team):
                 else:
                     game_over = True  # 승패 갈리면 게임 종료
         clock.tick(FPS)
-        screen.fill(SKY_BLUE)
-        pygame.draw.rect(screen, GREEN, (0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y))
+        draw_match_background(screen, background_image)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

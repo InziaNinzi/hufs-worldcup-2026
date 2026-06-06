@@ -32,14 +32,16 @@ python main.py
 ## 게임 흐름
 
 1. **메인 타이틀** — ENTER/SPACE로 시작
-2. **팀 선택** — 1P/2P 각각 국가(팀) 선택 후 경기 시작
-3. **경기** — ESC로 팀 선택 화면 복귀
+2. **배경 선택** — 미국/캐나다/멕시코 경기장 배경 선택
+3. **팀 선택** — 1P/2P 각각 국가(팀) 선택 후 경기 시작
+4. **경기** — ESC로 팀 선택 화면 복귀
 
 ### 조작 요약
 
 | 화면 | 1P | 2P |
 |------|----|----|
 | 타이틀 | ENTER / SPACE | — |
+| 배경 선택 | A/D 또는 ←/→ 변경, SPACE/ENTER 확정 | — |
 | 팀 선택 | W/S 변경, SPACE 확정 | ↑/↓ 변경, ENTER 확정 |
 | 경기 | A/D 이동, W 점프 | ←/→ 이동, ↑ 점프 |
 
@@ -48,12 +50,15 @@ python main.py
 ```text
 worldcup_game/
 ├─ assets/                 # 게임 리소스(선택). 없으면 도형으로 대체
+│  ├─ backgrounds/         # 경기장 배경 이미지 리소스
+│  └─ flags/               # 팀 선택 화면 국기 이미지 리소스
 ├─ src/
 │  ├─ __init__.py
 │  ├─ constants.py         # 해상도, 색상, 물리값, 팀 목록, 키 바인딩
 │  ├─ player.py            # Player 클래스
 │  ├─ ball.py              # Ball 클래스
 │  ├─ title_screen.py      # 메인 타이틀 화면
+│  ├─ background_selection.py # 경기장 배경 선택 화면
 │  ├─ selection_menu.py    # 플레이어(팀) 선택 메뉴
 │  └─ game.py              # 경기 루프
 ├─ main.py                 # 게임 실행 엔트리포인트 (화면 상태 전환)
