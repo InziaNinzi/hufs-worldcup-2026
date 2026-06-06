@@ -50,7 +50,8 @@ python main.py
 ```text
 worldcup_game/
 ├─ assets/                 # 게임 리소스(선택). 없으면 도형으로 대체
-│  └─ backgrounds/         # 경기장 배경 이미지 리소스
+│  ├─ backgrounds/         # 경기장 배경 이미지 리소스
+│  └─ flags/               # 팀 선택 화면 국기 이미지 리소스
 ├─ src/
 │  ├─ __init__.py
 │  ├─ constants.py         # 해상도, 색상, 물리값, 팀 목록, 키 바인딩

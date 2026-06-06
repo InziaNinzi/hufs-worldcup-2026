@@ -27,12 +27,40 @@ STATE_SELECTION = "selection"
 STATE_PLAYING = "playing"
 STATE_RESULT = "result"
 
+# Resource paths
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(PROJECT_ROOT, "assets")
+BACKGROUND_DIR = os.path.join(ASSETS_DIR, "backgrounds")
+FLAG_DIR = os.path.join(ASSETS_DIR, "flags")
+PLAYER1_IMAGE_PATH = os.path.join(ASSETS_DIR, "player1.png")
+PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
+
 # Menu teams (name, display name, jersey color)
 TEAMS = [
-    {"id": "korea", "name": "대한민국", "color": (200, 16, 46)},
-    {"id": "brazil", "name": "브라질", "color": (255, 223, 0)},
-    {"id": "france", "name": "프랑스", "color": (0, 35, 149)},
-    {"id": "argentina", "name": "아르헨티나", "color": (117, 170, 219)},
+    {
+        "id": "korea",
+        "name": "대한민국",
+        "color": (200, 16, 46),
+        "flag_path": os.path.join(FLAG_DIR, "korea.png"),
+    },
+    {
+        "id": "brazil",
+        "name": "브라질",
+        "color": (255, 223, 0),
+        "flag_path": os.path.join(FLAG_DIR, "brazil.png"),
+    },
+    {
+        "id": "france",
+        "name": "프랑스",
+        "color": (0, 35, 149),
+        "flag_path": os.path.join(FLAG_DIR, "france.png"),
+    },
+    {
+        "id": "argentina",
+        "name": "아르헨티나",
+        "color": (117, 170, 219),
+        "flag_path": os.path.join(FLAG_DIR, "argentina.png"),
+    },
     {"id": "usa", "name": "미국", "color": (255, 255, 255)},
     {"id": "senegal", "name": "세네갈", "color": (0, 100, 0)},
     {"id": "portugal", "name": "포르투갈", "color": (139, 0, 0)},
@@ -63,13 +91,6 @@ GOAL_Y = 400
 GOAL_POST_THICKNESS = 6
 SCORE_TEXT_POS = (WIDTH // 2 - 40, 20)
 MATCH_WIN_SCORE = 3
-
-# Resource paths
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ASSETS_DIR = os.path.join(PROJECT_ROOT, "assets")
-BACKGROUND_DIR = os.path.join(ASSETS_DIR, "backgrounds")
-PLAYER1_IMAGE_PATH = os.path.join(ASSETS_DIR, "player1.png")
-PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
 
 STADIUM_BACKGROUNDS = [
     {

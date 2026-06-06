@@ -7,7 +7,6 @@ from src.constants import (
     GREEN,
     HEIGHT,
     LIGHT_GRAY,
-    PLAYER_SIZE,
     TOURNAMENT_TEAMS,
     WHITE,
     WIDTH,
@@ -27,10 +26,13 @@ class SelectionMenu:
         self.p2_ready = False
         self.locked_p1_team = None
         self.p2_options = TOURNAMENT_TEAMS
+        self.flag_size = (180, 110)
+        self.flag_images = {}
 
     def run(self, screen, clock, locked_p1_team=None, p2_options=None):
         self.locked_p1_team = locked_p1_team
         self.p2_options = p2_options or self._default_p2_options()
+        self._load_flag_images()
         self.p1_index = 0
         self.p2_index = 0 if locked_p1_team else min(1, len(self.p2_options) - 1)
         self.p1_ready = locked_p1_team is not None
@@ -52,6 +54,21 @@ class SelectionMenu:
 
             self._draw(screen)
             pygame.display.flip()
+
+    def _load_flag_images(self):
+        for team in TOURNAMENT_TEAMS:
+            if team["id"] in self.flag_images or "flag_path" not in team:
+                continue
+
+            try:
+                image = pygame.image.load(team["flag_path"]).convert()
+            except (pygame.error, FileNotFoundError):
+                continue
+
+            self.flag_images[team["id"]] = pygame.transform.scale(
+                image,
+                self.flag_size,
+            )
 
     def _default_p2_options(self):
         if self.locked_p1_team is None:
@@ -152,13 +169,7 @@ class SelectionMenu:
             (panel.centerx - label_surf.get_width() // 2, panel.y + 16),
         )
 
-        preview_x = panel.centerx - PLAYER_SIZE[0] // 2
-        preview_y = panel.centery - 20
-        preview = pygame.Surface(PLAYER_SIZE, pygame.SRCALPHA)
-        preview.fill(team["color"])
-        if team["color"] == (255, 255, 255):
-            pygame.draw.rect(preview, GRAY, preview.get_rect(), 2)
-        screen.blit(preview, (preview_x, preview_y))
+        self._draw_team_flag(screen, panel, team)
 
         name_surf = self.team_font.render(team["name"], True, WHITE)
         screen.blit(
@@ -173,6 +184,18 @@ class SelectionMenu:
             status_surf,
             (panel.centerx - status_surf.get_width() // 2, panel.bottom - 38),
         )
+
+    def _draw_team_flag(self, screen, panel, team):
+        flag = self.flag_images.get(team["id"])
+        flag_rect = pygame.Rect(0, 0, *self.flag_size)
+        flag_rect.center = (panel.centerx, panel.centery - 20)
+
+        if flag:
+            screen.blit(flag, flag_rect)
+        else:
+            pygame.draw.rect(screen, team["color"], flag_rect)
+
+        pygame.draw.rect(screen, GRAY, flag_rect, 2)
 
     def _draw_vs(self, screen):
         vs = self.vs_font.render("VS", True, WHITE)
