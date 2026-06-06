@@ -2,6 +2,7 @@ import pygame
 
 from src.ball import Ball
 from src.constants import (
+    BLACK,
     FPS,
     GOAL_HEIGHT,
     GOAL_POST_THICKNESS,
@@ -21,6 +22,18 @@ from src.constants import (
     WIDTH,
 )
 from src.player import Player
+
+
+def draw_outlined_text(surface, text, font, color, outline_color, pos, center=False):
+    ox, oy = pos
+    outline = font.render(text, True, outline_color)
+    main = font.render(text, True, color)
+    if center:
+        ox -= main.get_width() // 2
+        oy -= main.get_height() // 2
+    for dx, dy in ((-2, 0), (2, 0), (0, -2), (0, 2), (-2, -2), (2, -2), (-2, 2), (2, 2)):
+        surface.blit(outline, (ox + dx, oy + dy))
+    surface.blit(main, (ox, oy))
 
 
 def load_stadium_background(background):
@@ -50,8 +63,8 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None):
     start_ticks = pygame.time.get_ticks()
     game_over = False
     is_golden_ball = False
-    font = pygame.font.SysFont("malgungothic", 40)
-    name_font = pygame.font.SysFont("malgungothic", 22)
+    font = pygame.font.SysFont("malgungothic", 40, bold=True)
+    name_font = pygame.font.SysFont("malgungothic", 22, bold=True)
 
     score1, score2 = 0, 0
     p1 = Player(150, 500, P1_CONTROLS, p1_team["color"], PLAYER1_IMAGE_PATH)
@@ -159,21 +172,16 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None):
         pygame.draw.line(screen, WHITE, (WIDTH, GOAL_Y), (WIDTH - GOAL_WIDTH, GOAL_Y), t)
         pygame.draw.line(screen, WHITE, (WIDTH - GOAL_WIDTH, GOAL_Y), (WIDTH - GOAL_WIDTH, GROUND_Y), t)
 
-        score_text = font.render(f"{score1}  :  {score2}", True, WHITE)
-        screen.blit(score_text, SCORE_TEXT_POS)
-        # 타이머 화면에 그리기
+        draw_outlined_text(screen, f"{score1}  :  {score2}", font, WHITE, BLACK, SCORE_TEXT_POS)
         if is_golden_ball:
-            time_text = font.render("GOLDEN BALL!", True, WHITE)
+            timer_label = "GOLDEN BALL!"
         else:
-            time_text = font.render(f"TIME: {int(remaining_time)}s", True, WHITE)
-        # 화면의 가로 중앙을 계산하고, 점수판 아래에 타이머를 가운데 정렬합니다.
-        timer_rect = time_text.get_rect(center=(screen.get_width() // 2, 100))
-        screen.blit(time_text, timer_rect)
+            timer_label = f"TIME: {int(remaining_time)}s"
+        draw_outlined_text(screen, timer_label, font, WHITE, BLACK, (screen.get_width() // 2, 100), center=True)
 
-        p1_label = name_font.render(p1.team_name, True, WHITE)
-        p2_label = name_font.render(p2.team_name, True, WHITE)
-        screen.blit(p1_label, (20, 24))
-        screen.blit(p2_label, (WIDTH - p2_label.get_width() - 20, 24))
+        draw_outlined_text(screen, p1.team_name, name_font, WHITE, BLACK, (20, 24))
+        p2_label_w = name_font.size(p2.team_name)[0]
+        draw_outlined_text(screen, p2.team_name, name_font, WHITE, BLACK, (WIDTH - p2_label_w - 20, 24))
 
         pygame.draw.line(screen, WHITE, (0, GROUND_Y), (WIDTH, GROUND_Y), 3)
         pygame.display.flip()
