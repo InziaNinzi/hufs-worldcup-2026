@@ -1,41 +1,35 @@
 import os
-
 import pygame
 
 from src.constants import (
+    CHARACTER_STATS, 
     GROUND_Y,
     HEIGHT,
-    PLAYER_DASH_COOLDOWN,
     PLAYER_DASH_DURATION,
-    PLAYER_DASH_SPEED,
     PLAYER_GRAVITY,
-    PLAYER_JUMP_VELOCITY,
     PLAYER_RADIUS,
     PLAYER_SIZE,
-    PLAYER_SPEED,
     WIDTH,
 )
 
 
 class Player:
-    def __init__(self, x, y, controls, color, image_path=None, char_type="NORMAL"):
+    def __init__(self, x, y, controls, color, image_path=None, char_type="korea"):
         self.controls = controls
         self.color = color
         self.radius = PLAYER_RADIUS
 
         self.char_type = char_type
-        if char_type == "SPEEDY":
-            self.speed = 10
-            self.power = 1.2
-            self.jump_velocity = -14
-        elif char_type == "HEAVY":
-            self.speed = 5
-            self.power = 2.0
-            self.jump_velocity = -11
-        else:
-            self.speed = 7
-            self.power = 1.5
-            self.jump_velocity = -13
+        
+        
+        stats = CHARACTER_STATS.get(char_type, CHARACTER_STATS["korea"])
+        
+        
+        self.speed = stats["speed"]
+        self.power = stats["power"]
+        self.jump_velocity = stats["jump_velocity"]
+        self.dash_cooldown_max = stats["dash_cooldown"]
+        self.dash_speed = stats["dash_speed"]
 
         self.image = self._load_or_fallback_image(image_path, color)
         self.rect = pygame.Rect(x, y, *PLAYER_SIZE)
@@ -78,11 +72,11 @@ class Player:
         self._dash_key_prev = dash_key_now
 
         if self.is_dashing:
-            self.rect.x += PLAYER_DASH_SPEED * self.last_dir
+            self.rect.x += self.dash_speed * self.last_dir  # 국가별 고유 대시 속도 적용
             self.dash_timer -= 1
             if self.dash_timer <= 0:
                 self.is_dashing = False
-                self.dash_cooldown_timer = PLAYER_DASH_COOLDOWN
+                self.dash_cooldown_timer = self.dash_cooldown_max  # 국가별 고유 대시 쿨타임 적용
         else:
             if keys[self.controls[0]]:
                 self.rect.x -= self.speed

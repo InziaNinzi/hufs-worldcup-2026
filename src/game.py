@@ -29,7 +29,6 @@ from src.constants import (
 from src.player import Player
 
 _PAUSE_OPTIONS = ["계속하기", "메인 메뉴", "게임 종료"]
-# 상단 중앙 톱니바퀴 버튼 (점수 바로 위)
 _GEAR_RECT = pygame.Rect(WIDTH // 2 - 15, 2, 30, 18)
 
 
@@ -160,8 +159,9 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_scor
     score1, score2 = 0, 0
     goal_caption_started_at = None
 
-    p1 = Player(150, 500, P1_CONTROLS, p1_team["color"], PLAYER1_IMAGE_PATH)
-    p2 = Player(800, 500, P2_CONTROLS, p2_team["color"], PLAYER2_IMAGE_PATH)
+    
+    p1 = Player(150, 500, P1_CONTROLS, p1_team["color"], PLAYER1_IMAGE_PATH, char_type=p1_team["id"])
+    p2 = Player(800, 500, P2_CONTROLS, p2_team["color"], PLAYER2_IMAGE_PATH, char_type=p2_team["id"])
     p1.team_name = p1_team["name"]
     p2.team_name = p2_team["name"]
     ball = Ball()
@@ -183,7 +183,6 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_scor
                     game_over = True
                     game_over_at = pygame.time.get_ticks()
 
-        # 타이머 종료 후 1.5초 뒤 결과 반환
         if game_over and game_over_at is not None:
             if pygame.time.get_ticks() - game_over_at > 1500:
                 if score1 > score2:
@@ -218,7 +217,6 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_scor
             game_over_at = game_over_at or pygame.time.get_ticks()
 
         br = ball.radius
-        # 크로스바 충돌 (세로 포스트는 득점 통로이므로 충돌 없음)
         if ball.pos[0] - br < GOAL_WIDTH and abs(ball.pos[1] - GOAL_Y) < br:
             ball.vel[1] *= -0.7
             ball.pos[1] = GOAL_Y - br if ball.vel[1] < 0 else GOAL_Y + br
@@ -234,7 +232,10 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_scor
                 nx = dx / dist
                 ny = dy / dist
                 pv_n = player.vel_x * nx + player.vel_y * ny
-                kick = pv_n * 1.5 + 8
+                
+                
+                kick = (pv_n * player.power) + (5 * player.power)
+                
                 ball.vel[0] = nx * kick
                 ball.vel[1] = ny * kick - 5
                 overlap = player.radius + ball.radius - dist

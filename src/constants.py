@@ -39,12 +39,19 @@ PLAYER1_IMAGE_PATH = os.path.join(ASSETS_DIR, "player1.png")
 PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
 
 # Menu teams (name, display name, jersey color)
+# 첫 번째부터 네 번째까지가 토너먼트에 등장합니다. (한국, 아르헨티나, 브라질, 프랑스)
 TEAMS = [
     {
         "id": "korea",
         "name": "대한민국",
         "color": (200, 16, 46),
         "flag_path": os.path.join(FLAG_DIR, "korea.png"),
+    },
+    {
+        "id": "argentina",
+        "name": "아르헨티나",
+        "color": (117, 170, 219),
+        "flag_path": os.path.join(FLAG_DIR, "argentina.png"),
     },
     {
         "id": "brazil",
@@ -59,19 +66,54 @@ TEAMS = [
         "flag_path": os.path.join(FLAG_DIR, "france.png"),
     },
     {
-        "id": "argentina",
-        "name": "아르헨티나",
-        "color": (117, 170, 219),
-        "flag_path": os.path.join(FLAG_DIR, "argentina.png"),
+        "id": "usa",
+        "name": "미국",
+        "color": WHITE, 
+        "flag_path": os.path.join(FLAG_DIR, "usa.png"), 
     },
-    {"id": "usa", "name": "미국", "color": (255, 255, 255)},
     {"id": "senegal", "name": "세네갈", "color": (0, 100, 0)},
     {"id": "portugal", "name": "포르투갈", "color": (139, 0, 0)},
-    {"id": "england", "name": "잉글랜드", "color": (255, 255, 255)},
+    {"id": "england", "name": "잉글랜드", "color": WHITE},
 ]
 TOURNAMENT_TEAMS = TEAMS[:4]
 
-# Gameplay constants
+# --- 캐릭터별 개별 스탯 데이터 ---
+CHARACTER_STATS = {
+    "korea": {
+        "name": "대한민국 (All-Rounder)",
+        "speed": 8,          
+        "power": 1.5,        
+        "jump_velocity": -15,
+        "dash_cooldown": 60, 
+        "dash_speed": 18
+    },
+    "argentina": {
+        "name": "아르헨티나 (Striker)",
+        "speed": 7,          
+        "power": 1.9,        
+        "jump_velocity": -14,
+        "dash_cooldown": 80, 
+        "dash_speed": 14     
+    },
+    "brazil": {
+        "name": "브라질 (Technician)",
+        "speed": 9,          
+        "power": 1.3,        
+        "jump_velocity": -16,
+        "dash_cooldown": 45, 
+        "dash_speed": 19     
+    },
+    "france": {
+        "name": "프랑스 (Speedster)",
+        "speed": 11,         
+        "power": 1.1,        
+        "jump_velocity": -13,
+        "dash_cooldown": 40, 
+        "dash_speed": 22     
+    }
+}
+
+# Gameplay constants (공통 속성들)
 PLAYER_SIZE = (60, 90)
 PLAYER_RADIUS = 30
 PLAYER_SPEED = 7
@@ -119,7 +161,3 @@ STADIUM_BACKGROUNDS = [
 # Key settings
 P1_CONTROLS = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_LSHIFT]
 P2_CONTROLS = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_RSHIFT]
-
-PLAYER_SPEED = 7
-PLAYER_GRAVITY = 0.6
-PLAYER_RADIUS = 30
