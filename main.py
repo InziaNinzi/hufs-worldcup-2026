@@ -4,7 +4,9 @@ import pygame
 
 from src.background_selection import BackgroundSelection
 from src.constants import (
+    FRIENDLY_WIN_SCORE,
     HEIGHT,
+    MATCH_WIN_SCORE,
     STATE_BACKGROUND,
     STATE_PLAYING,
     STATE_RESULT,
@@ -50,6 +52,7 @@ def build_final_bracket(previous_bracket, match_result, selected_teams):
 
 def reset_tournament():
     return {
+        "mode": "tournament",
         "selected_teams": None,
         "match_result": None,
         "bracket": None,
@@ -75,10 +78,11 @@ def main():
 
     while True:
         if state == STATE_TITLE:
-            next_state = title_screen.run(screen, clock)
-            if next_state is None:
+            mode = title_screen.run(screen, clock)
+            if mode is None:
                 break
             tournament = reset_tournament()
+            tournament["mode"] = mode
             state = STATE_BACKGROUND
 
         elif state == STATE_BACKGROUND:
@@ -115,21 +119,33 @@ def main():
 
         elif state == STATE_PLAYING:
             selected_teams = tournament["selected_teams"]
+            is_friendly = tournament["mode"] == "friendly"
             match_result = run_match(
                 screen,
                 clock,
                 selected_teams[0],
                 selected_teams[1],
                 tournament["selected_background"],
+                win_score=FRIENDLY_WIN_SCORE if is_friendly else MATCH_WIN_SCORE,
+                use_timer=not is_friendly,
             )
-            if match_result is False:
+
+            if match_result == "quit" or match_result is False:
                 break
-            if match_result is True:
+            if match_result == "title":
                 tournament = reset_tournament()
-                state = STATE_SELECTION
+                state = STATE_TITLE
                 continue
+            if not isinstance(match_result, dict):
+                break
 
             tournament["match_result"] = match_result
+
+            if is_friendly:
+                tournament = reset_tournament()
+                state = STATE_TITLE
+                continue
+
             if tournament["is_final_match"]:
                 tournament["bracket"] = build_final_bracket(
                     tournament["bracket"],

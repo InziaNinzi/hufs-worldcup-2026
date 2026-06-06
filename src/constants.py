@@ -22,10 +22,13 @@ LIGHT_GRAY = (220, 220, 220)
 
 # Game states
 STATE_TITLE = "title"
+STATE_MODE = "mode"
 STATE_BACKGROUND = "background"
 STATE_SELECTION = "selection"
 STATE_PLAYING = "playing"
 STATE_RESULT = "result"
+
+FRIENDLY_WIN_SCORE = 11
 
 # Resource paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -89,6 +92,9 @@ GOAL_WIDTH = 70
 GOAL_HEIGHT = 150
 GOAL_Y = 400
 GOAL_POST_THICKNESS = 6
+GOAL_CAPTION_TEXT = "GOAL!"
+GOAL_CAPTION_DURATION = 1200
+GOAL_CAPTION_FADE_DURATION = 300
 SCORE_TEXT_POS = (WIDTH // 2 - 40, 20)
 MATCH_WIN_SCORE = 3
 
