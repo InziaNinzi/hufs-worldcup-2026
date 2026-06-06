@@ -4,10 +4,15 @@ from src.ball import Ball
 from src.constants import (
     BLACK,
     FPS,
+    GOAL_CAPTION_DURATION,
+    GOAL_CAPTION_FADE_DURATION,
+    GOAL_CAPTION_TEXT,
     GOAL_HEIGHT,
     GOAL_POST_THICKNESS,
     GOAL_WIDTH,
     GOAL_Y,
+    GOLD,
+    GRAY,
     GREEN,
     GROUND_Y,
     HEIGHT,
@@ -23,6 +28,29 @@ from src.constants import (
 )
 from src.player import Player
 
+_PAUSE_OPTIONS = ["계속하기", "메인 메뉴", "게임 종료"]
+# 상단 중앙 톱니바퀴 버튼 (점수 바로 위)
+_GEAR_RECT = pygame.Rect(WIDTH // 2 - 15, 2, 30, 18)
+
+
+def draw_goal_caption(screen, font, started_at):
+    elapsed = pygame.time.get_ticks() - started_at
+    if elapsed >= GOAL_CAPTION_DURATION:
+        return False
+    remaining = GOAL_CAPTION_DURATION - elapsed
+    fade_time = min(elapsed, remaining, GOAL_CAPTION_FADE_DURATION)
+    alpha = int(255 * fade_time / GOAL_CAPTION_FADE_DURATION)
+
+    shadow = font.render(GOAL_CAPTION_TEXT, True, BLACK)
+    caption = font.render(GOAL_CAPTION_TEXT, True, GOLD)
+    shadow.set_alpha(alpha)
+    caption.set_alpha(alpha)
+
+    caption_rect = caption.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 60))
+    screen.blit(shadow, shadow.get_rect(center=(caption_rect.centerx + 6, caption_rect.centery + 6)))
+    screen.blit(caption, caption_rect)
+    return True
+
 
 def draw_outlined_text(surface, text, font, color, outline_color, pos, center=False):
     ox, oy = pos
@@ -36,15 +64,75 @@ def draw_outlined_text(surface, text, font, color, outline_color, pos, center=Fa
     surface.blit(main, (ox, oy))
 
 
+def draw_gear_button(screen, font):
+    pygame.draw.rect(screen, (20, 20, 20), _GEAR_RECT, border_radius=4)
+    pygame.draw.rect(screen, (120, 120, 120), _GEAR_RECT, 1, border_radius=4)
+    label = font.render("⚙", True, (200, 200, 200))
+    screen.blit(label, label.get_rect(center=_GEAR_RECT.center))
+
+
+def run_pause_menu(screen, clock, background_snapshot):
+    title_font  = pygame.font.SysFont("malgungothic", 26, bold=True)
+    option_font = pygame.font.SysFont("malgungothic", 22)
+    hint_font   = pygame.font.SysFont("malgungothic", 16)
+    selected = 0
+
+    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 160))
+
+    panel_w, panel_h = 260, 200
+    panel = pygame.Rect(WIDTH // 2 - panel_w // 2, HEIGHT // 2 - panel_h // 2, panel_w, panel_h)
+
+    while True:
+        clock.tick(FPS)
+        screen.blit(background_snapshot, (0, 0))
+        screen.blit(overlay, (0, 0))
+
+        pygame.draw.rect(screen, (18, 18, 18), panel, border_radius=12)
+        pygame.draw.rect(screen, GOLD, panel, 2, border_radius=12)
+
+        title = title_font.render("⚙  일시정지", True, GOLD)
+        screen.blit(title, title.get_rect(center=(WIDTH // 2, panel.y + 28)))
+
+        pygame.draw.line(screen, (60, 60, 60), (panel.x + 20, panel.y + 48), (panel.right - 20, panel.y + 48), 1)
+
+        for i, label in enumerate(_PAUSE_OPTIONS):
+            cy = panel.y + 72 + i * 38
+            if i == selected:
+                highlight = pygame.Rect(panel.x + 10, cy - 14, panel_w - 20, 30)
+                pygame.draw.rect(screen, (40, 40, 40), highlight, border_radius=6)
+                color = GOLD
+            else:
+                color = WHITE
+            text = option_font.render(label, True, color)
+            screen.blit(text, text.get_rect(center=(WIDTH // 2, cy)))
+
+        hint = hint_font.render("↑↓ 이동   ENTER 확인   ESC 계속", True, GRAY)
+        screen.blit(hint, hint.get_rect(center=(WIDTH // 2, panel.bottom - 14)))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "quit"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(_PAUSE_OPTIONS)
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(_PAUSE_OPTIONS)
+                elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                    return ["resume", "title", "quit"][selected]
+                elif event.key == pygame.K_ESCAPE:
+                    return "resume"
+
+
 def load_stadium_background(background):
     if not background:
         return None
-
     try:
         image = pygame.image.load(background["path"]).convert()
     except (pygame.error, FileNotFoundError):
         return None
-
     return pygame.transform.scale(image, (WIDTH, HEIGHT))
 
 
@@ -52,21 +140,26 @@ def draw_match_background(screen, background_image):
     if background_image:
         screen.blit(background_image, (0, 0))
         return
-
     screen.fill(SKY_BLUE)
     pygame.draw.rect(screen, GREEN, (0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y))
 
 
-def run_match(screen, clock, p1_team, p2_team, stadium_background=None):
-    # 타이머 변수 세팅
+def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_score=MATCH_WIN_SCORE, use_timer=True):
+    font       = pygame.font.SysFont("malgungothic", 40, bold=True)
+    name_font  = pygame.font.SysFont("malgungothic", 22, bold=True)
+    gear_font  = pygame.font.SysFont("malgungothic", 14)
+    goal_caption_font = pygame.font.SysFont("malgungothic", 200, bold=True)
+
     total_time = 90
     start_ticks = pygame.time.get_ticks()
     game_over = False
+    game_over_at = None
     is_golden_ball = False
-    font = pygame.font.SysFont("malgungothic", 40, bold=True)
-    name_font = pygame.font.SysFont("malgungothic", 22, bold=True)
+    remaining_time = total_time
 
     score1, score2 = 0, 0
+    goal_caption_started_at = None
+
     p1 = Player(150, 500, P1_CONTROLS, p1_team["color"], PLAYER1_IMAGE_PATH)
     p2 = Player(800, 500, P2_CONTROLS, p2_team["color"], PLAYER2_IMAGE_PATH)
     p1.team_name = p1_team["name"]
@@ -74,57 +167,64 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None):
     ball = Ball()
     background_image = load_stadium_background(stadium_background)
 
-    goal_left = pygame.Rect(0, GOAL_Y, GOAL_WIDTH, GOAL_HEIGHT)
+    goal_left  = pygame.Rect(0, GOAL_Y, GOAL_WIDTH, GOAL_HEIGHT)
     goal_right = pygame.Rect(WIDTH - GOAL_WIDTH, GOAL_Y, GOAL_WIDTH, GOAL_HEIGHT)
 
-    running = True
-    while running:
-        # 90초 카운트다운 로직
-        # 골든볼 연장전이 아닐 때만 타이머가 작동하도록 조건을 추가합니다.
-        if not game_over and not is_golden_ball:
+    while True:
+        clock.tick(FPS)
+
+        if use_timer and not game_over and not is_golden_ball:
             seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
             remaining_time = max(0, total_time - seconds_passed)
-
             if remaining_time <= 0:
                 if score1 == score2:
-                    is_golden_ball = True  # 동점이면 연장전
+                    is_golden_ball = True
                 else:
-                    game_over = True  # 승패 갈리면 게임 종료
-        clock.tick(FPS)
+                    game_over = True
+                    game_over_at = pygame.time.get_ticks()
+
+        # 타이머 종료 후 1.5초 뒤 결과 반환
+        if game_over and game_over_at is not None:
+            if pygame.time.get_ticks() - game_over_at > 1500:
+                if score1 > score2:
+                    return {"winner": p1_team, "loser": p2_team, "score": (score1, score2)}
+                else:
+                    return {"winner": p2_team, "loser": p1_team, "score": (score1, score2)}
+
         draw_match_background(screen, background_image)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return False
+                return "quit"
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return True
+                snapshot = screen.copy()
+                result = run_pause_menu(screen, clock, snapshot)
+                if result in ("title", "quit"):
+                    return result
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if _GEAR_RECT.collidepoint(event.pos):
+                    snapshot = screen.copy()
+                    result = run_pause_menu(screen, clock, snapshot)
+                    if result in ("title", "quit"):
+                        return result
 
-        # 게임 오버가 아닐 때만 캐릭터와 공이 움직이도록 제어합니다.
         if not game_over:
             p1.move()
             p2.move()
             ball.update()
 
-        if is_golden_ball and score1 != score2:
+        if use_timer and is_golden_ball and score1 != score2:
             game_over = True
+            game_over_at = game_over_at or pygame.time.get_ticks()
 
         br = ball.radius
-        # Left goal crossbar
+        # 크로스바 충돌 (세로 포스트는 득점 통로이므로 충돌 없음)
         if ball.pos[0] - br < GOAL_WIDTH and abs(ball.pos[1] - GOAL_Y) < br:
             ball.vel[1] *= -0.7
             ball.pos[1] = GOAL_Y - br if ball.vel[1] < 0 else GOAL_Y + br
-        # Left goal post (right vertical bar, above opening)
-        if abs(ball.pos[0] - GOAL_WIDTH) < br and ball.pos[1] < GOAL_Y:
-            ball.vel[0] = abs(ball.vel[0]) * 0.7
-            ball.pos[0] = GOAL_WIDTH + br
-        # Right goal crossbar
         if ball.pos[0] + br > WIDTH - GOAL_WIDTH and abs(ball.pos[1] - GOAL_Y) < br:
             ball.vel[1] *= -0.7
             ball.pos[1] = GOAL_Y - br if ball.vel[1] < 0 else GOAL_Y + br
-        # Right goal post (left vertical bar, above opening)
-        if abs(ball.pos[0] - (WIDTH - GOAL_WIDTH)) < br and ball.pos[1] < GOAL_Y:
-            ball.vel[0] = -abs(ball.vel[0]) * 0.7
-            ball.pos[0] = WIDTH - GOAL_WIDTH - br
 
         for player in (p1, p2):
             dx = ball.pos[0] - player.circle_x
@@ -143,21 +243,15 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None):
 
         if goal_left.collidepoint(ball.pos[0], ball.pos[1]):
             score2 += 1
-            if score2 >= MATCH_WIN_SCORE:
-                return {
-                    "winner": p2_team,
-                    "loser": p1_team,
-                    "score": (score1, score2),
-                }
+            goal_caption_started_at = pygame.time.get_ticks()
+            if score2 >= win_score:
+                return {"winner": p2_team, "loser": p1_team, "score": (score1, score2)}
             ball.reset()
         if goal_right.collidepoint(ball.pos[0], ball.pos[1]):
             score1 += 1
-            if score1 >= MATCH_WIN_SCORE:
-                return {
-                    "winner": p1_team,
-                    "loser": p2_team,
-                    "score": (score1, score2),
-                }
+            goal_caption_started_at = pygame.time.get_ticks()
+            if score1 >= win_score:
+                return {"winner": p1_team, "loser": p2_team, "score": (score1, score2)}
             ball.reset()
 
         p1.draw(screen)
@@ -165,25 +259,26 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None):
         ball.draw(screen)
 
         t = GOAL_POST_THICKNESS
-        # Left goal: crossbar + right post
         pygame.draw.line(screen, WHITE, (0, GOAL_Y), (GOAL_WIDTH, GOAL_Y), t)
         pygame.draw.line(screen, WHITE, (GOAL_WIDTH, GOAL_Y), (GOAL_WIDTH, GROUND_Y), t)
-        # Right goal: crossbar + left post
         pygame.draw.line(screen, WHITE, (WIDTH, GOAL_Y), (WIDTH - GOAL_WIDTH, GOAL_Y), t)
         pygame.draw.line(screen, WHITE, (WIDTH - GOAL_WIDTH, GOAL_Y), (WIDTH - GOAL_WIDTH, GROUND_Y), t)
 
         draw_outlined_text(screen, f"{score1}  :  {score2}", font, WHITE, BLACK, SCORE_TEXT_POS)
-        if is_golden_ball:
-            timer_label = "GOLDEN BALL!"
-        else:
-            timer_label = f"TIME: {int(remaining_time)}s"
-        draw_outlined_text(screen, timer_label, font, WHITE, BLACK, (screen.get_width() // 2, 100), center=True)
+
+        if use_timer:
+            timer_label = "GOLDEN BALL!" if is_golden_ball else f"TIME: {int(remaining_time)}s"
+            draw_outlined_text(screen, timer_label, font, WHITE, BLACK, (WIDTH // 2, 100), center=True)
 
         draw_outlined_text(screen, p1.team_name, name_font, WHITE, BLACK, (20, 24))
         p2_label_w = name_font.size(p2.team_name)[0]
         draw_outlined_text(screen, p2.team_name, name_font, WHITE, BLACK, (WIDTH - p2_label_w - 20, 24))
 
         pygame.draw.line(screen, WHITE, (0, GROUND_Y), (WIDTH, GROUND_Y), 3)
-        pygame.display.flip()
+        draw_gear_button(screen, gear_font)
 
-    return False
+        if goal_caption_started_at is not None:
+            if not draw_goal_caption(screen, goal_caption_font, goal_caption_started_at):
+                goal_caption_started_at = None
+
+        pygame.display.flip()

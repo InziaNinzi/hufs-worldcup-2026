@@ -5,6 +5,7 @@ from src.constants import (
     DARK_GREEN,
     FPS,
     GOLD,
+    GRAY,
     GREEN,
     HEIGHT,
     WHITE,
@@ -12,18 +13,29 @@ from src.constants import (
     YELLOW,
 )
 
+_MODES = [
+    ("tournament", "토너먼트"),
+    ("friendly",   "친선전"),
+]
+
 
 class TitleScreen:
     def __init__(self):
-        self.title_font = pygame.font.SysFont("malgungothic", 64, bold=True)
-        self.sub_font = pygame.font.SysFont("malgungothic", 28)
-        self.hint_font = pygame.font.SysFont("malgungothic", 24)
-        self.time = 0
-        self.ball_angle = 0
+        self.title_font  = pygame.font.SysFont("malgungothic", 64, bold=True)
+        self.sub_font    = pygame.font.SysFont("malgungothic", 28)
+        self.mode_large  = pygame.font.SysFont("malgungothic", 40, bold=True)
+        self.mode_small  = pygame.font.SysFont("malgungothic", 26)
+        self.hint_font   = pygame.font.SysFont("malgungothic", 24)
+        self.time = 0.0
+        self.ball_angle = 0.0
+        self.selected = 0
 
     def run(self, screen, clock):
-        running = True
-        while running:
+        self.selected = 0
+        self.time = 0.0
+        self.ball_angle = 0.0
+
+        while True:
             dt = clock.tick(FPS) / 1000.0
             self.time += dt
             self.ball_angle += dt * 2.5
@@ -32,15 +44,17 @@ class TitleScreen:
                 if event.type == pygame.QUIT:
                     return None
                 if event.type == pygame.KEYDOWN:
-                    if event.key in (pygame.K_RETURN, pygame.K_SPACE):
-                        return "selection"
-                    if event.key == pygame.K_ESCAPE:
+                    if event.key in (pygame.K_UP, pygame.K_w):
+                        self.selected = (self.selected - 1) % len(_MODES)
+                    elif event.key in (pygame.K_DOWN, pygame.K_s):
+                        self.selected = (self.selected + 1) % len(_MODES)
+                    elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                        return _MODES[self.selected][0]
+                    elif event.key == pygame.K_ESCAPE:
                         return None
 
             self._draw(screen)
             pygame.display.flip()
-
-        return None
 
     def _draw(self, screen):
         self._draw_background(screen)
@@ -68,20 +82,33 @@ class TitleScreen:
 
         for i in range(3):
             x = 80 + i * 120
-            pygame.draw.rect(screen, (200, 16, 46), (x, HEIGHT - 130, 50, 70), border_radius=4)
+            pygame.draw.rect(screen, (200, 16, 46),  (x, HEIGHT - 130, 50, 70), border_radius=4)
             pygame.draw.rect(screen, (0, 35, 149), (WIDTH - 130 - i * 120, HEIGHT - 130, 50, 70), border_radius=4)
 
     def _draw_text(self, screen):
         bounce = math.sin(self.time * 3) * 6
         title_surf = self.title_font.render("2026 북중미 월드컵", True, GOLD)
-        title_rect = title_surf.get_rect(center=(WIDTH // 2, 140 + bounce))
-        screen.blit(title_surf, title_rect)
+        screen.blit(title_surf, title_surf.get_rect(center=(WIDTH // 2, 140 + bounce)))
 
         sub_surf = self.sub_font.render("HEAD SOCCER", True, WHITE)
-        sub_rect = sub_surf.get_rect(center=(WIDTH // 2, 210))
-        screen.blit(sub_surf, sub_rect)
+        screen.blit(sub_surf, sub_surf.get_rect(center=(WIDTH // 2, 210)))
+
+        # 모드 선택
+        base_y = 330
+        for i, (_, label) in enumerate(_MODES):
+            selected = i == self.selected
+            font  = self.mode_large if selected else self.mode_small
+            color = GOLD if selected else GRAY
+            surf  = font.render(label, True, color)
+            rect  = surf.get_rect(center=(WIDTH // 2, base_y + i * 58))
+            screen.blit(surf, rect)
+
+            if selected:
+                arrow_l = self.mode_small.render("◀", True, GOLD)
+                arrow_r = self.mode_small.render("▶", True, GOLD)
+                screen.blit(arrow_l, (rect.left - arrow_l.get_width() - 10, rect.centery - arrow_l.get_height() // 2))
+                screen.blit(arrow_r, (rect.right + 10, rect.centery - arrow_r.get_height() // 2))
 
         if int(self.time * 2) % 2 == 0:
-            hint = self.hint_font.render("ENTER 또는 SPACE — 게임 시작", True, WHITE)
-            hint_rect = hint.get_rect(center=(WIDTH // 2, HEIGHT - 40))
-            screen.blit(hint, hint_rect)
+            hint = self.hint_font.render("↑↓  모드 선택   ENTER  게임 시작", True, WHITE)
+            screen.blit(hint, hint.get_rect(center=(WIDTH // 2, HEIGHT - 40)))
