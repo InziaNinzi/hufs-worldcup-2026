@@ -161,3 +161,4 @@ STADIUM_BACKGROUNDS = [
 # Key settings
 P1_CONTROLS = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_LSHIFT]
 P2_CONTROLS = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_RSHIFT]
+# 오픈소스 소프트웨어 프로젝트 최종 에셋 및 물리엔진 설정 완료
