@@ -39,7 +39,7 @@ PLAYER1_IMAGE_PATH = os.path.join(ASSETS_DIR, "player1.png")
 PLAYER2_IMAGE_PATH = os.path.join(ASSETS_DIR, "player2.png")
 
 # Menu teams (name, display name, jersey color)
-# 첫 번째부터 네 번째까지가 토너먼트에 등장합니다. (한국, 아르헨티나, 브라질, 프랑스)
+# 첫 번째부터 네 번째까지가 토너먼트에 등장합니다. (한국, 아르헨티나, 브라질, 잉글랜드)
 TEAMS = [
     {
         "id": "korea",
@@ -60,10 +60,10 @@ TEAMS = [
         "flag_path": os.path.join(FLAG_DIR, "brazil.png"),
     },
     {
-        "id": "france",
-        "name": "프랑스",
-        "color": (0, 35, 149),
-        "flag_path": os.path.join(FLAG_DIR, "france.png"),
+        "id": "england",
+        "name": "잉글랜드",
+        "color": (255, 255, 255),
+        "flag_path": os.path.join(FLAG_DIR, "england.png"),
     },
     {
         "id": "usa",
@@ -73,7 +73,7 @@ TEAMS = [
     },
     {"id": "senegal", "name": "세네갈", "color": (0, 100, 0)},
     {"id": "portugal", "name": "포르투갈", "color": (139, 0, 0)},
-    {"id": "england", "name": "잉글랜드", "color": WHITE},
+    
 ]
 TOURNAMENT_TEAMS = TEAMS[:4]
 
@@ -81,32 +81,32 @@ TOURNAMENT_TEAMS = TEAMS[:4]
 CHARACTER_STATS = {
     "korea": {
         "name": "대한민국 (All-Rounder)",
-        "speed": 8,          
-        "power": 1.5,        
+        "speed": 6,          
+        "power": 1.0,        
         "jump_velocity": -15,
         "dash_cooldown": 60, 
         "dash_speed": 18
     },
     "argentina": {
-        "name": "아르헨티나 (Striker)",
-        "speed": 7,          
-        "power": 1.9,        
+        "name": "아르헨티나 (Speedster)",
+        "speed": 8,          
+        "power": 0.8,        
         "jump_velocity": -14,
         "dash_cooldown": 80, 
         "dash_speed": 14     
     },
     "brazil": {
         "name": "브라질 (Technician)",
-        "speed": 9,          
-        "power": 1.3,        
+        "speed": 7,          
+        "power": 0.9,        
         "jump_velocity": -16,
         "dash_cooldown": 45, 
         "dash_speed": 19     
     },
-    "france": {
-        "name": "프랑스 (Speedster)",
-        "speed": 11,         
-        "power": 1.1,        
+    "england": {
+        "name": "잉글랜드 (Striker)",
+        "speed": 5,         
+        "power": 1.2,        
         "jump_velocity": -13,
         "dash_cooldown": 40, 
         "dash_speed": 22     

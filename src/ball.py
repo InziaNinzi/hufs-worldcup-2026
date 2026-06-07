@@ -1,3 +1,4 @@
+import os
 import pygame
 
 from src.constants import (
@@ -19,6 +20,22 @@ class Ball:
     def __init__(self):
         self.radius = BALL_RADIUS
         self.reset()
+        
+        
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        img_path = os.path.join(project_root, "assets", "ball.png")
+        self.image = self._load_or_fallback_image(img_path)
+
+    def _load_or_fallback_image(self, img_path):
+        """이미지가 있으면 공 크기(지름)에 맞게 불러오고, 없으면 None을 반환합니다."""
+        if os.path.exists(img_path):
+            try:
+                img = pygame.image.load(img_path).convert_alpha()
+                diameter = self.radius * 2
+                return pygame.transform.scale(img, (diameter, diameter))
+            except pygame.error:
+                pass
+        return None
 
     def reset(self):
         self.pos = [WIDTH // 2, HEIGHT // 2]
@@ -48,7 +65,13 @@ class Ball:
 
         if self.pos[0] < self.radius or self.pos[0] > WIDTH - self.radius:
             self.vel[0] *= BALL_BOUNCE_X
-            self.pos[0] = max(self.radius, min(WIDTH - self.radius, self.pos[0]))
+            self.pos[0] 
 
     def draw(self, surface):
-        pygame.draw.circle(surface, YELLOW, (int(self.pos[0]), int(self.pos[1])), self.radius)
+        # 이미지가 존재하면 그리고, 없으면 원래 노란색 원을 그립니다.
+        if self.image:
+            draw_x = self.pos[0] - self.radius
+            draw_y = self.pos[1] - self.radius
+            surface.blit(self.image, (draw_x, draw_y))
+        else:
+            pygame.draw.circle(surface, YELLOW, (int(self.pos[0]), int(self.pos[1])), self.radius)

@@ -2,7 +2,7 @@ import os
 import pygame
 
 from src.constants import (
-    CHARACTER_STATS, 
+    CHARACTER_STATS,
     GROUND_Y,
     HEIGHT,
     PLAYER_DASH_DURATION,
@@ -12,43 +12,57 @@ from src.constants import (
     WIDTH,
 )
 
-
 class Player:
     def __init__(self, x, y, controls, color, image_path=None, char_type="korea"):
         self.controls = controls
         self.color = color
         self.radius = PLAYER_RADIUS
-
         self.char_type = char_type
-        
+
         
         stats = CHARACTER_STATS.get(char_type, CHARACTER_STATS["korea"])
-        
-        
         self.speed = stats["speed"]
         self.power = stats["power"]
         self.jump_velocity = stats["jump_velocity"]
         self.dash_cooldown_max = stats["dash_cooldown"]
         self.dash_speed = stats["dash_speed"]
 
-        self.image = self._load_or_fallback_image(image_path, color)
+       
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        img_path = os.path.join(project_root, "assets", "sprites", char_type, "idle.png")
+
+       
+        self.original_image = self._load_or_fallback_image(img_path, color)
+        self.image = self.original_image
         self.rect = pygame.Rect(x, y, *PLAYER_SIZE)
+
         self.vel_x = 0
         self.vel_y = 0
         self.gravity = PLAYER_GRAVITY
         self.is_jumping = False
-
         self.last_dir = 1
         self.is_dashing = False
         self.dash_timer = 0
         self.dash_cooldown_timer = 0
         self._dash_key_prev = False
 
-    def _load_or_fallback_image(self, image_path, color):
-        if image_path and isinstance(image_path, (str, os.PathLike)) and os.path.exists(image_path):
+    def _load_or_fallback_image(self, img_path, color):
+        if os.path.exists(img_path):
             try:
-                image = pygame.image.load(image_path).convert_alpha()
-                return pygame.transform.scale(image, PLAYER_SIZE)
+                
+                full_sheet = pygame.image.load(img_path).convert_alpha()
+                
+
+                sheet_width, sheet_height = full_sheet.get_size()
+                
+                
+                single_width = sheet_width // 4
+                
+                
+                single_img = full_sheet.subsurface(pygame.Rect(0, 0, single_width, sheet_height))
+                
+                
+                return pygame.transform.scale(single_img, PLAYER_SIZE)
             except pygame.error:
                 pass
 
@@ -60,6 +74,7 @@ class Player:
         keys = pygame.key.get_pressed()
         prev_x = self.rect.x
 
+        
         if keys[self.controls[0]]:
             self.last_dir = -1
         elif keys[self.controls[1]]:
@@ -72,11 +87,11 @@ class Player:
         self._dash_key_prev = dash_key_now
 
         if self.is_dashing:
-            self.rect.x += self.dash_speed * self.last_dir  # 국가별 고유 대시 속도 적용
+            self.rect.x += self.dash_speed * self.last_dir
             self.dash_timer -= 1
             if self.dash_timer <= 0:
                 self.is_dashing = False
-                self.dash_cooldown_timer = self.dash_cooldown_max  # 국가별 고유 대시 쿨타임 적용
+                self.dash_cooldown_timer = self.dash_cooldown_max
         else:
             if keys[self.controls[0]]:
                 self.rect.x -= self.speed
@@ -104,6 +119,12 @@ class Player:
             self.rect.right = WIDTH
 
         self.vel_x = self.rect.x - prev_x
+
+        
+        if self.last_dir == -1:
+            self.image = pygame.transform.flip(self.original_image, True, False)
+        else:
+            self.image = self.original_image
 
     @property
     def circle_x(self):
