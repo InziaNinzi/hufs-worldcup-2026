@@ -65,7 +65,7 @@ class Ball:
 
         if self.pos[0] < self.radius or self.pos[0] > WIDTH - self.radius:
             self.vel[0] *= BALL_BOUNCE_X
-            self.pos[0] 
+            self.pos[0] = max(self.radius, min(WIDTH - self.radius, self.pos[0]))
 
     def draw(self, surface):
         # 이미지가 존재하면 그리고, 없으면 원래 노란색 원을 그립니다.
