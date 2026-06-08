@@ -30,7 +30,7 @@ class ResultScreen:
                     if event.key == pygame.K_ESCAPE:
                         return "selection"
                     if event.key in (pygame.K_RETURN, pygame.K_SPACE):
-                        return "selection" if is_final else "final_selection"
+                        return "title" if is_final else "final_selection"
 
             self._draw(screen, bracket, match_result, is_final)
             pygame.display.flip()
@@ -64,9 +64,9 @@ class ResultScreen:
         if is_final:
             self._draw_champion_label(screen, bracket["champion"])
 
-        hint_text = "SPACE/ENTER: team selection  |  ESC: team selection"
+        hint_text = "SPACE/ENTER: 처음으로  |  ESC: 팀 선택"
         if not is_final:
-            hint_text = "SPACE/ENTER: select final opponent  |  ESC: team selection"
+            hint_text = "SPACE/ENTER: 결승 상대 선택  |  ESC: 팀 선택"
         hint = self.hint_font.render(hint_text, True, GRAY)
         screen.blit(hint, hint.get_rect(center=(WIDTH // 2, HEIGHT - 34)))
 

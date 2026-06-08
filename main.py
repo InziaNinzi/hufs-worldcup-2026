@@ -19,6 +19,7 @@ from src.constants import (
 from src.game import run_match
 from src.result_screen import ResultScreen
 from src.selection_menu import SelectionMenu
+from src.victory_screen import run_victory_screen
 from src.title_screen import TitleScreen
 
 
@@ -142,6 +143,9 @@ def main():
             tournament["match_result"] = match_result
 
             if is_friendly:
+                vr = run_victory_screen(screen, clock, match_result["winner"])
+                if vr is None:
+                    break
                 tournament = reset_tournament()
                 state = STATE_TITLE
                 continue
@@ -152,6 +156,9 @@ def main():
                     match_result,
                     selected_teams,
                 )
+                vr = run_victory_screen(screen, clock, match_result["winner"])
+                if vr is None:
+                    break
             else:
                 tournament["bracket"] = build_semifinal_bracket(
                     match_result,

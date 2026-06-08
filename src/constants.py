@@ -81,35 +81,35 @@ TOURNAMENT_TEAMS = TEAMS[:4]
 CHARACTER_STATS = {
     "korea": {
         "name": "대한민국 (All-Rounder)",
-        "speed": 6,          
-        "power": 1.0,        
+        "speed": 6,
+        "power": 1.0,
         "jump_velocity": -15,
-        "dash_cooldown": 60, 
+        "dash_cooldown": 60,
         "dash_speed": 18
     },
     "argentina": {
         "name": "아르헨티나 (Speedster)",
-        "speed": 8,          
-        "power": 0.8,        
+        "speed": 8,
+        "power": 0.8,
         "jump_velocity": -14,
-        "dash_cooldown": 80, 
-        "dash_speed": 14     
+        "dash_cooldown": 80,
+        "dash_speed": 14
     },
     "brazil": {
         "name": "브라질 (Technician)",
-        "speed": 7,          
-        "power": 0.9,        
+        "speed": 7,
+        "power": 0.9,
         "jump_velocity": -16,
-        "dash_cooldown": 45, 
-        "dash_speed": 19     
+        "dash_cooldown": 45,
+        "dash_speed": 19
     },
     "england": {
         "name": "잉글랜드 (Striker)",
-        "speed": 5,         
-        "power": 1.2,        
+        "speed": 5,
+        "power": 1.2,
         "jump_velocity": -13,
-        "dash_cooldown": 40, 
-        "dash_speed": 22     
+        "dash_cooldown": 40,
+        "dash_speed": 22
     }
 }
 
