@@ -1,3 +1,4 @@
+import math
 import os
 import pygame
 
@@ -19,6 +20,7 @@ from src.constants import (
 class Ball:
     def __init__(self):
         self.radius = BALL_RADIUS
+        self.angle = 0.0
         self.reset()
         
         
@@ -67,11 +69,12 @@ class Ball:
             self.vel[0] *= BALL_BOUNCE_X
             self.pos[0] = max(self.radius, min(WIDTH - self.radius, self.pos[0]))
 
+        self.angle = (self.angle - self.vel[0] * (180 / (math.pi * self.radius))) % 360
+
     def draw(self, surface):
-        # 이미지가 존재하면 그리고, 없으면 원래 노란색 원을 그립니다.
         if self.image:
-            draw_x = self.pos[0] - self.radius
-            draw_y = self.pos[1] - self.radius
-            surface.blit(self.image, (draw_x, draw_y))
+            rotated = pygame.transform.rotate(self.image, self.angle)
+            rect = rotated.get_rect(center=(int(self.pos[0]), int(self.pos[1])))
+            surface.blit(rotated, rect)
         else:
             pygame.draw.circle(surface, YELLOW, (int(self.pos[0]), int(self.pos[1])), self.radius)

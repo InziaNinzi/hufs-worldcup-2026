@@ -1,3 +1,4 @@
+import math
 import os
 import random
 import pygame
@@ -54,6 +55,7 @@ class _Ball:
         self.y = float(GROUND_Y - _BALL_R * 3)
         self.vx = random.choice([-1, 1]) * random.uniform(4, 6)
         self.vy = -9.0
+        self.angle = 0.0
 
     def update(self):
         self.vy += 0.38
@@ -65,6 +67,7 @@ class _Ball:
         if self.x > WIDTH - _BALL_R:
             self.x = WIDTH - _BALL_R
             self.vx = -abs(self.vx) * 0.85
+        self.angle = (self.angle - self.vx * (180 / (math.pi * _BALL_R))) % 360
         ground = GROUND_Y - _BALL_R
         if self.y > ground:
             self.y = ground
@@ -72,11 +75,12 @@ class _Ball:
             self.vx *= 0.98
 
     def draw(self, surface):
-        ix, iy = int(self.x), int(self.y)
         if self.img:
-            surface.blit(self.img, (ix - _BALL_R, iy - _BALL_R))
+            rotated = pygame.transform.rotate(self.img, self.angle)
+            rect = rotated.get_rect(center=(int(self.x), int(self.y)))
+            surface.blit(rotated, rect)
         else:
-            pygame.draw.circle(surface, (255, 220, 0), (ix, iy), _BALL_R)
+            pygame.draw.circle(surface, (255, 220, 0), (int(self.x), int(self.y)), _BALL_R)
 
 
 class _Confetti:
