@@ -12,6 +12,7 @@ from src.constants import (
     WIDTH,
     YELLOW,
 )
+from src import display_scaler
 
 _MODES = [
     ("tournament", "토너먼트"),
@@ -44,7 +45,9 @@ class TitleScreen:
                 if event.type == pygame.QUIT:
                     return None
                 if event.type == pygame.KEYDOWN:
-                    if event.key in (pygame.K_UP, pygame.K_w):
+                    if event.key == pygame.K_F11:
+                        display_scaler.toggle_fullscreen()
+                    elif event.key in (pygame.K_UP, pygame.K_w):
                         self.selected = (self.selected - 1) % len(_MODES)
                     elif event.key in (pygame.K_DOWN, pygame.K_s):
                         self.selected = (self.selected + 1) % len(_MODES)
@@ -110,5 +113,5 @@ class TitleScreen:
                 screen.blit(arrow_r, (rect.right + 10, rect.centery - arrow_r.get_height() // 2))
 
         if int(self.time * 2) % 2 == 0:
-            hint = self.hint_font.render("↑↓  모드 선택   ENTER  게임 시작", True, WHITE)
+            hint = self.hint_font.render("↑↓ 모드 선택   ENTER 게임 시작   F11 전체화면", True, WHITE)
             screen.blit(hint, hint.get_rect(center=(WIDTH // 2, HEIGHT - 40)))

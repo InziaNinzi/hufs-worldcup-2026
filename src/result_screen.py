@@ -10,6 +10,7 @@ from src.constants import (
     WHITE,
     WIDTH,
 )
+from src import display_scaler
 
 
 class ResultScreen:
@@ -27,9 +28,11 @@ class ResultScreen:
                 if event.type == pygame.QUIT:
                     return None
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
+                    if event.key == pygame.K_F11:
+                        display_scaler.toggle_fullscreen()
+                    elif event.key == pygame.K_ESCAPE:
                         return "selection"
-                    if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                    elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
                         return "title" if is_final else "final_selection"
 
             self._draw(screen, bracket, match_result, is_final)

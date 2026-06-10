@@ -5,7 +5,6 @@ import pygame
 from src.background_selection import BackgroundSelection
 from src.constants import (
     FRIENDLY_WIN_SCORE,
-    HEIGHT,
     MATCH_WIN_SCORE,
     STATE_BACKGROUND,
     STATE_PLAYING,
@@ -14,8 +13,8 @@ from src.constants import (
     STATE_TITLE,
     TITLE,
     TOURNAMENT_TEAMS,
-    WIDTH,
 )
+from src import display_scaler
 from src.game import run_match
 from src.result_screen import ResultScreen
 from src.selection_menu import SelectionMenu
@@ -66,7 +65,8 @@ def reset_tournament():
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = display_scaler.init()
+    display_scaler.open_windowed()
     pygame.display.set_caption(TITLE)
     clock = pygame.time.Clock()
 

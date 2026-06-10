@@ -13,6 +13,7 @@ from src.constants import (
     WHITE,
     WIDTH,
 )
+from src import display_scaler
 
 
 class BackgroundSelection:
@@ -34,6 +35,9 @@ class BackgroundSelection:
                 if event.type == pygame.QUIT:
                     return None
                 if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_F11:
+                        display_scaler.toggle_fullscreen()
+                        continue
                     result = self._handle_key(event.key)
                     if result is not None:
                         return result
