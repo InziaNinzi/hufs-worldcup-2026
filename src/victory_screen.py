@@ -12,6 +12,7 @@ from src.constants import (
     WHITE,
     WIDTH,
 )
+from src import display_scaler
 
 _MINI_W, _MINI_H = 40, 60
 _BALL_R = 15
@@ -165,7 +166,9 @@ def run_victory_screen(screen, clock, winner_team):
             if event.type == pygame.QUIT:
                 return None
             if event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_ESCAPE):
+                if event.key == pygame.K_F11:
+                    display_scaler.toggle_fullscreen()
+                elif event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_ESCAPE):
                     return "done"
 
         screen.fill((8, 28, 8))

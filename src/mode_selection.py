@@ -12,6 +12,7 @@ from src.constants import (
     WHITE,
     WIDTH,
 )
+from src import display_scaler
 
 MODES = [
     {
@@ -50,7 +51,9 @@ class ModeSelection:
                 if event.type == pygame.QUIT:
                     return None
                 if event.type == pygame.KEYDOWN:
-                    if event.key in (pygame.K_UP, pygame.K_w):
+                    if event.key == pygame.K_F11:
+                        display_scaler.toggle_fullscreen()
+                    elif event.key in (pygame.K_UP, pygame.K_w):
                         self.selected = (self.selected - 1) % len(MODES)
                     elif event.key in (pygame.K_DOWN, pygame.K_s):
                         self.selected = (self.selected + 1) % len(MODES)

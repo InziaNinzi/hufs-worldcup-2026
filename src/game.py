@@ -27,6 +27,7 @@ from src.constants import (
     WIDTH,
 )
 from src.player import Player
+from src import display_scaler
 
 _PAUSE_OPTIONS = ["계속하기", "메인 메뉴", "게임 종료"]
 _GEAR_RECT = pygame.Rect(WIDTH // 2 - 15, 2, 30, 18)
@@ -115,7 +116,9 @@ def run_pause_menu(screen, clock, background_snapshot):
             if event.type == pygame.QUIT:
                 return "quit"
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_F11:
+                    display_scaler.toggle_fullscreen()
+                elif event.key == pygame.K_UP:
                     selected = (selected - 1) % len(_PAUSE_OPTIONS)
                 elif event.key == pygame.K_DOWN:
                     selected = (selected + 1) % len(_PAUSE_OPTIONS)
@@ -195,13 +198,16 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_scor
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                snapshot = screen.copy()
-                result = run_pause_menu(screen, clock, snapshot)
-                if result in ("title", "quit"):
-                    return result
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_F11:
+                    display_scaler.toggle_fullscreen()
+                elif event.key == pygame.K_ESCAPE:
+                    snapshot = screen.copy()
+                    result = run_pause_menu(screen, clock, snapshot)
+                    if result in ("title", "quit"):
+                        return result
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if _GEAR_RECT.collidepoint(event.pos):
+                if _GEAR_RECT.collidepoint(display_scaler.scale_mouse(event.pos)):
                     snapshot = screen.copy()
                     result = run_pause_menu(screen, clock, snapshot)
                     if result in ("title", "quit"):
