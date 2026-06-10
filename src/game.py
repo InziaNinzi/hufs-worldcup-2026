@@ -1,3 +1,4 @@
+import math
 import pygame
 
 from src.ball import Ball
@@ -33,6 +34,27 @@ _PAUSE_OPTIONS = ["계속하기", "메인 메뉴", "게임 종료"]
 _GEAR_RECT = pygame.Rect(WIDTH // 2 - 15, 2, 30, 18)
 
 
+def _draw_gear_icon(surface, cx, cy, r, color, bg_color):
+    """폴리곤으로 그리는 톱니바퀴 아이콘."""
+    teeth = 8
+    r_out = r
+    r_in = r * 0.66
+    r_hole = max(1, int(r * 0.30))
+    step = 2 * math.pi / teeth
+    half = step * 0.22
+
+    pts = []
+    for i in range(teeth):
+        a = step * i
+        pts.append((cx + r_in  * math.cos(a - half),       cy + r_in  * math.sin(a - half)))
+        pts.append((cx + r_out * math.cos(a - half * 0.7), cy + r_out * math.sin(a - half * 0.7)))
+        pts.append((cx + r_out * math.cos(a + half * 0.7), cy + r_out * math.sin(a + half * 0.7)))
+        pts.append((cx + r_in  * math.cos(a + half),       cy + r_in  * math.sin(a + half)))
+
+    pygame.draw.polygon(surface, color, [(int(x), int(y)) for x, y in pts])
+    pygame.draw.circle(surface, bg_color, (int(cx), int(cy)), r_hole)
+
+
 def draw_goal_caption(screen, font, started_at):
     elapsed = pygame.time.get_ticks() - started_at
     if elapsed >= GOAL_CAPTION_DURATION:
@@ -64,11 +86,12 @@ def draw_outlined_text(surface, text, font, color, outline_color, pos, center=Fa
     surface.blit(main, (ox, oy))
 
 
-def draw_gear_button(screen, font):
-    pygame.draw.rect(screen, (20, 20, 20), _GEAR_RECT, border_radius=4)
+def draw_gear_button(screen):
+    bg = (20, 20, 20)
+    pygame.draw.rect(screen, bg, _GEAR_RECT, border_radius=4)
     pygame.draw.rect(screen, (120, 120, 120), _GEAR_RECT, 1, border_radius=4)
-    label = font.render("⚙", True, (200, 200, 200))
-    screen.blit(label, label.get_rect(center=_GEAR_RECT.center))
+    cx, cy = _GEAR_RECT.center
+    _draw_gear_icon(screen, cx, cy, 6, (200, 200, 200), bg)
 
 
 def run_pause_menu(screen, clock, background_snapshot):
@@ -91,8 +114,13 @@ def run_pause_menu(screen, clock, background_snapshot):
         pygame.draw.rect(screen, (18, 18, 18), panel, border_radius=12)
         pygame.draw.rect(screen, GOLD, panel, 2, border_radius=12)
 
-        title = title_font.render("⚙  일시정지", True, GOLD)
-        screen.blit(title, title.get_rect(center=(WIDTH // 2, panel.y + 28)))
+        title_surf = title_font.render("일시정지", True, GOLD)
+        gear_r = 9
+        gap = 7
+        total_w = gear_r * 2 + gap + title_surf.get_width()
+        center_y = panel.y + 28
+        _draw_gear_icon(screen, WIDTH // 2 - total_w // 2 + gear_r, center_y, gear_r, GOLD, (18, 18, 18))
+        screen.blit(title_surf, title_surf.get_rect(midleft=(WIDTH // 2 - total_w // 2 + gear_r * 2 + gap, center_y)))
 
         pygame.draw.line(screen, (60, 60, 60), (panel.x + 20, panel.y + 48), (panel.right - 20, panel.y + 48), 1)
 
@@ -149,7 +177,6 @@ def draw_match_background(screen, background_image):
 def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_score=MATCH_WIN_SCORE, use_timer=True):
     font       = pygame.font.SysFont("malgungothic", 40, bold=True)
     name_font  = pygame.font.SysFont("malgungothic", 22, bold=True)
-    gear_font  = pygame.font.SysFont("malgungothic", 14)
     goal_caption_font = pygame.font.SysFont("malgungothic", 200, bold=True)
 
     total_time = 90
@@ -282,7 +309,7 @@ def run_match(screen, clock, p1_team, p2_team, stadium_background=None, win_scor
         draw_outlined_text(screen, p2.team_name, name_font, WHITE, BLACK, (WIDTH - p2_label_w - 20, 24))
 
         pygame.draw.line(screen, WHITE, (0, GROUND_Y), (WIDTH, GROUND_Y), 3)
-        draw_gear_button(screen, gear_font)
+        draw_gear_button(screen)
 
         if goal_caption_started_at is not None:
             if not draw_goal_caption(screen, goal_caption_font, goal_caption_started_at):
